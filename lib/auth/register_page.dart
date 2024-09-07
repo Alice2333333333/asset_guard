@@ -2,8 +2,7 @@ import 'dart:developer';
 
 import 'package:asset_guard/auth/login_page.dart';
 import 'package:flutter/material.dart';
-import 'package:asset_guard/auth/login_page.dart';
-// import 'auth_service.dart';
+import 'auth_service.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -13,16 +12,16 @@ class RegisterPage extends StatefulWidget {
 }
 
 class _RegisterPageState extends State<RegisterPage> {
-  // final _auth = AuthService();
+  final _auth = AuthService();
 
-  final _name = TextEditingController();
+  // final _name = TextEditingController();
   final _email = TextEditingController();
   final _password = TextEditingController();
 
   @override
   void dispose() {
     super.dispose();
-    _name.dispose();
+    // _name.dispose();
     _email.dispose();
     _password.dispose();
   }
@@ -43,17 +42,17 @@ class _RegisterPageState extends State<RegisterPage> {
               ),
             ),
             const SizedBox(height: 20),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(20, 8, 20, 8),
-              child: TextField(
-                controller: _name,
-                textInputAction: TextInputAction.next,
-                decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
-                  labelText: 'Name',
-                ),
-              ),
-            ),
+            // Padding(
+            //   padding: const EdgeInsets.fromLTRB(20, 8, 20, 8),
+            //   child: TextField(
+            //     controller: _name,
+            //     textInputAction: TextInputAction.next,
+            //     decoration: const InputDecoration(
+            //       border: OutlineInputBorder(),
+            //       labelText: 'Name',
+            //     ),
+            //   ),
+            // ),
             Padding(
               padding: const EdgeInsets.fromLTRB(20, 8, 20, 8),
               child: TextField(
@@ -81,7 +80,7 @@ class _RegisterPageState extends State<RegisterPage> {
               width: 330,
               child: ElevatedButton(
                 onPressed: () {
-                  // _signup();
+                  _signup();
                 },
                 child: const Text('Register'),
               ),
@@ -106,15 +105,15 @@ class _RegisterPageState extends State<RegisterPage> {
     );
   }
 
-  // _signup() async {
-  //   final user = await _auth.createUser(_email.text, _password.text);
-  //   if (user != null) {
-  //     log("User Created Succesfully");
-  //     Navigator.of(context).push(
-  //       MaterialPageRoute(builder: (BuildContext context) {
-  //         return const LoginPage();
-  //       }),
-  //     );
-  //   }
-  // }
+  _signup() async {
+    final user = await _auth.createUser(_email.text, _password.text);
+    if (user != null) {
+      log("User Created Succesfully");
+      Navigator.of(context).push(
+        MaterialPageRoute(builder: (BuildContext context) {
+          return const LoginPage();
+        }),
+      );
+    }
+  }
 }

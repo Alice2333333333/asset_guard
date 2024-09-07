@@ -1,5 +1,9 @@
+import 'dart:developer';
+
 import 'package:asset_guard/auth/register_page.dart';
+import 'package:asset_guard/homepage.dart';
 import 'package:flutter/material.dart';
+import 'auth_service.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -9,6 +13,8 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
+  final _auth = AuthService();
+
   final _email = TextEditingController();
   final _password = TextEditingController();
 
@@ -66,7 +72,9 @@ class _LoginPageState extends State<LoginPage> {
             SizedBox(
               width: 330,
               child: ElevatedButton(
-                onPressed: () {},
+                onPressed: () {
+                  _login();
+                },
                 child: const Text('Login'),
               ),
             ),
@@ -88,5 +96,17 @@ class _LoginPageState extends State<LoginPage> {
         ),
       ),
     );
+  }
+
+  _login() async {
+    final user = await _auth.loginUser(_email.text, _password.text);
+    if (user != null) {
+      log("User Logged In");
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (BuildContext context) {
+          return const Homepage();
+        }),
+      );
+    }
   }
 }
