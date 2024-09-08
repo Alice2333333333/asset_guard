@@ -108,5 +108,13 @@ class _LoginPageState extends State<LoginPage> {
         }),
       );
     }
+    else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please enter valid email and password'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+    }
   }
 }
