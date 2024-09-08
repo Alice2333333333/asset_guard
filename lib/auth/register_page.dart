@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:asset_guard/auth/login_page.dart';
 import 'package:flutter/material.dart';
+import 'package:email_validator/email_validator.dart';
 import 'auth_service.dart';
 
 class RegisterPage extends StatefulWidget {
@@ -107,12 +108,24 @@ class _RegisterPageState extends State<RegisterPage> {
 
   _signup() async {
     final user = await _auth.createUser(_email.text, _password.text);
-    if (user != null) {
-      log("User Created Succesfully");
-      Navigator.of(context).push(
-        MaterialPageRoute(builder: (BuildContext context) {
-          return const LoginPage();
-        }),
+
+    final bool isValid = EmailValidator.validate(_email.text);
+
+    if (isValid) {
+      if (user != null) {
+        log("User Created Succesfully");
+        Navigator.of(context).push(
+          MaterialPageRoute(builder: (BuildContext context) {
+            return const LoginPage();
+          }),
+        );
+      }
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please enter valid email'),
+          duration: Duration(seconds: 2),
+        ),
       );
     }
   }
