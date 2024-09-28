@@ -13,22 +13,25 @@ class RegisterPage extends StatefulWidget {
 }
 
 class _RegisterPageState extends State<RegisterPage> {
+  List<String> role = <String>['Select Role', 'Storeman', 'Site Manager'];
   final _auth = AuthService();
 
-  // final _name = TextEditingController();
+  final _name = TextEditingController();
   final _email = TextEditingController();
   final _password = TextEditingController();
 
   @override
   void dispose() {
     super.dispose();
-    // _name.dispose();
+    _name.dispose();
     _email.dispose();
     _password.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    String dropdownValue = role.first;
+
     return Scaffold(
       body: Center(
         child: Column(
@@ -43,17 +46,17 @@ class _RegisterPageState extends State<RegisterPage> {
               ),
             ),
             const SizedBox(height: 20),
-            // Padding(
-            //   padding: const EdgeInsets.fromLTRB(20, 8, 20, 8),
-            //   child: TextField(
-            //     controller: _name,
-            //     textInputAction: TextInputAction.next,
-            //     decoration: const InputDecoration(
-            //       border: OutlineInputBorder(),
-            //       labelText: 'Name',
-            //     ),
-            //   ),
-            // ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 8, 20, 8),
+              child: TextField(
+                controller: _name,
+                textInputAction: TextInputAction.next,
+                decoration: const InputDecoration(
+                  border: OutlineInputBorder(),
+                  labelText: 'Name',
+                ),
+              ),
+            ),
             Padding(
               padding: const EdgeInsets.fromLTRB(20, 8, 20, 8),
               child: TextField(
@@ -63,6 +66,23 @@ class _RegisterPageState extends State<RegisterPage> {
                   border: OutlineInputBorder(),
                   labelText: 'Email',
                 ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 8, 20, 8),
+              child: DropdownMenu<String>(
+                initialSelection: dropdownValue,
+                expandedInsets: EdgeInsets.zero,
+                onSelected: (String? value) {
+                  setState(() {
+                    dropdownValue = value!;
+                    role.remove('Select Role');
+                  });
+                },
+                dropdownMenuEntries:
+                    role.map<DropdownMenuEntry<String>>((String value) {
+                  return DropdownMenuEntry<String>(value: value, label: value);
+                }).toList(),
               ),
             ),
             Padding(
