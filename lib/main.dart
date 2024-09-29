@@ -1,4 +1,4 @@
-import 'package:asset_guard/auth/login_page.dart';
+import 'package:asset_guard/pages/login_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 

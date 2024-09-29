@@ -1,10 +1,38 @@
-import 'package:flutter/material.dart';
+import 'dart:developer';
 
-class Auth_Provider extends StatelessWidget {
-  const Auth_Provider({super.key});
+import 'package:firebase_auth/firebase_auth.dart';
 
-  @override
-  Widget build(BuildContext context) {
-    return const Placeholder();
+class AuthProvider {
+  final _auth = FirebaseAuth.instance;
+
+  Future<User?> createUser(String email, String password) async {
+    try {
+      final credential = await _auth.createUserWithEmailAndPassword(
+          email: email, password: password);
+      return credential.user;
+    } catch (e) {
+      log("Something went wrong");
+    }
+    return null;
+  }
+
+  Future<User?> loginUser(String email, String password) async {
+    try {
+      final cred = await _auth.signInWithEmailAndPassword(
+          email: email, password: password);
+      return cred.user;
+    } catch (e) {
+      log("Something went wrong");
+    }
+    return null;
+  }
+
+  Future<void> signout() async {
+    try {
+      await _auth.signOut();
+      log("User logged out");
+    } catch (e) {
+      log("Something went wrong");
+    }
   }
 }

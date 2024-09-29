@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
-import 'package:asset_guard/auth/login_page.dart';
-import 'package:asset_guard/auth/auth_service.dart';
+import 'package:asset_guard/pages/login_page.dart';
+import 'package:asset_guard/provider/auth_provider.dart';
 
 class Homepage extends StatelessWidget {
   const Homepage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final auth = AuthService();
+    final auth = AuthProvider();
     return Scaffold(
       appBar: AppBar(
         title: const Text('AssetGuard'),

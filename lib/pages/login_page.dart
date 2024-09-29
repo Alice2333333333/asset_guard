@@ -1,9 +1,9 @@
 import 'dart:developer';
 
-import 'package:asset_guard/auth/register_page.dart';
-import 'package:asset_guard/homepage.dart';
+import 'package:asset_guard/pages/register_page.dart';
+import 'package:asset_guard/pages/homepage.dart';
 import 'package:flutter/material.dart';
-import 'auth_service.dart';
+import 'package:asset_guard/provider/auth_provider.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -13,7 +13,7 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  final _auth = AuthService();
+  final _auth = AuthProvider();
 
   final _email = TextEditingController();
   final _password = TextEditingController();
@@ -107,8 +107,7 @@ class _LoginPageState extends State<LoginPage> {
           return const Homepage();
         }),
       );
-    }
-    else {
+    } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Invalid email and password'),

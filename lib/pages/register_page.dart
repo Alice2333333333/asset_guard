@@ -1,9 +1,9 @@
 import 'dart:developer';
 
-import 'package:asset_guard/auth/login_page.dart';
+import 'package:asset_guard/pages/login_page.dart';
 import 'package:flutter/material.dart';
 import 'package:email_validator/email_validator.dart';
-import 'auth_service.dart';
+import 'package:asset_guard/provider/auth_provider.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -14,7 +14,7 @@ class RegisterPage extends StatefulWidget {
 
 class _RegisterPageState extends State<RegisterPage> {
   List<String> role = <String>['Select Role', 'Storeman', 'Site Manager'];
-  final _auth = AuthService();
+  final _auth = AuthProvider();
 
   final _name = TextEditingController();
   final _email = TextEditingController();
