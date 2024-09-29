@@ -1,9 +1,9 @@
 import 'dart:developer';
 
-import 'package:asset_guard/auth/login_page.dart';
+import 'package:asset_guard/pages/login_page.dart';
 import 'package:flutter/material.dart';
 import 'package:email_validator/email_validator.dart';
-import 'auth_service.dart';
+// import '../auth/auth_service.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -14,7 +14,6 @@ class RegisterPage extends StatefulWidget {
 
 class _RegisterPageState extends State<RegisterPage> {
   List<String> role = <String>['Select Role', 'Storeman', 'Site Manager'];
-  final _auth = AuthService();
 
   final _name = TextEditingController();
   final _email = TextEditingController();
@@ -101,7 +100,7 @@ class _RegisterPageState extends State<RegisterPage> {
               width: 330,
               child: ElevatedButton(
                 onPressed: () {
-                  _signup();
+                  // _signup();
                 },
                 child: const Text('Register'),
               ),
@@ -111,11 +110,11 @@ class _RegisterPageState extends State<RegisterPage> {
               width: 330,
               child: ElevatedButton(
                 onPressed: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(builder: (BuildContext context) {
-                      return const LoginPage();
-                    }),
-                  );
+                  // Navigator.of(context).push(
+                  //   MaterialPageRoute(builder: (BuildContext context) {
+                  //     // return const LoginPage();
+                  //   }),
+                  // );
                 },
                 child: const Text('Already have an account?'),
               ),
@@ -126,27 +125,27 @@ class _RegisterPageState extends State<RegisterPage> {
     );
   }
 
-  _signup() async {
-    final user = await _auth.createUser(_email.text, _password.text);
+  // _signup() async {
+  //   // final user = await _auth.createUser(_email.text, _password.text);
 
-    final bool isValid = EmailValidator.validate(_email.text);
+  //   final bool isValid = EmailValidator.validate(_email.text);
 
-    if (isValid) {
-      if (user != null) {
-        log("User Created Succesfully");
-        Navigator.of(context).push(
-          MaterialPageRoute(builder: (BuildContext context) {
-            return const LoginPage();
-          }),
-        );
-      }
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please enter valid email'),
-          duration: Duration(seconds: 2),
-        ),
-      );
-    }
-  }
+  //   if (isValid) {
+  //     // if (user != null) {
+  //       log("User Created Succesfully");
+  //       Navigator.of(context).push(
+  //         MaterialPageRoute(builder: (BuildContext context) {
+  //           // return const LoginPage();
+  //         }),
+  //       );
+  //     }
+  //   } else {
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //       const SnackBar(
+  //         content: Text('Please enter valid email'),
+  //         duration: Duration(seconds: 2),
+  //       ),
+  //     );
+  //   }
+  // }
 }
