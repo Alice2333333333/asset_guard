@@ -14,6 +14,8 @@ class RegisterPage extends StatefulWidget {
 
 class _RegisterPageState extends State<RegisterPage> {
   List<String> role = <String>['Select Role', 'Storeman', 'Site Manager'];
+  String selectedRole = 'Select Role';
+
   final _auth = AuthProvider();
 
   final _name = TextEditingController();
@@ -30,8 +32,6 @@ class _RegisterPageState extends State<RegisterPage> {
 
   @override
   Widget build(BuildContext context) {
-    String dropdownValue = role.first;
-
     return Scaffold(
       body: Center(
         child: Column(
@@ -71,11 +71,11 @@ class _RegisterPageState extends State<RegisterPage> {
             Padding(
               padding: const EdgeInsets.fromLTRB(20, 8, 20, 8),
               child: DropdownMenu<String>(
-                initialSelection: dropdownValue,
+                initialSelection: selectedRole,
                 expandedInsets: EdgeInsets.zero,
                 onSelected: (String? value) {
                   setState(() {
-                    dropdownValue = value!;
+                    selectedRole = value!;
                     role.remove('Select Role');
                   });
                 },
@@ -127,7 +127,7 @@ class _RegisterPageState extends State<RegisterPage> {
   }
 
   _signup() async {
-    final user = await _auth.createUser(_email.text, _password.text);
+    final user = await _auth.createUser(_name.text, selectedRole, _email.text, _password.text);
 
     final bool isValid = EmailValidator.validate(_email.text);
 
