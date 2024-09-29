@@ -1,4 +1,6 @@
+import 'package:asset_guard/pages/homepage.dart';
 import 'package:asset_guard/pages/login_page.dart';
+import 'package:asset_guard/pages/register_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -23,9 +25,14 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
+    return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: LoginPage(),
+      initialRoute: '/',
+      routes: {
+        '/': (context) => const LoginPage(),
+        '/register': (context) => const RegisterPage(),
+        '/homepage': (context) => const Homepage()
+      },
     );
   }
 }

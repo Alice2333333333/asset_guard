@@ -1,6 +1,5 @@
 import 'dart:developer';
 
-import 'package:asset_guard/pages/login_page.dart';
 import 'package:flutter/material.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:asset_guard/provider/auth_provider.dart';
@@ -101,7 +100,26 @@ class _RegisterPageState extends State<RegisterPage> {
               width: 330,
               child: ElevatedButton(
                 onPressed: () {
-                  _signup();
+                  final bool isValid = EmailValidator.validate(_email.text);
+                  String password = _password.text;
+                  if (!isValid) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Invalid email'),
+                        duration: Duration(seconds: 2),
+                      ),
+                    );
+                  } else if (password.length < 6) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content:
+                            Text('Password should be at least 6 characters'),
+                        duration: Duration(seconds: 2),
+                      ),
+                    );
+                  } else {
+                    _signup();
+                  }
                 },
                 child: const Text('Register'),
               ),
@@ -111,11 +129,7 @@ class _RegisterPageState extends State<RegisterPage> {
               width: 330,
               child: ElevatedButton(
                 onPressed: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(builder: (BuildContext context) {
-                      return const LoginPage();
-                    }),
-                  );
+                  Navigator.pushReplacementNamed(context, '/');
                 },
                 child: const Text('Already have an account?'),
               ),
@@ -127,26 +141,12 @@ class _RegisterPageState extends State<RegisterPage> {
   }
 
   _signup() async {
-    final user = await _auth.createUser(_name.text, selectedRole, _email.text, _password.text);
+    final user = await _auth.createUser(
+        _name.text, selectedRole, _email.text, _password.text);
 
-    final bool isValid = EmailValidator.validate(_email.text);
-
-    if (isValid) {
-      if (user != null) {
-        log("User Created Succesfully");
-        Navigator.of(context).push(
-          MaterialPageRoute(builder: (BuildContext context) {
-            return const LoginPage();
-          }),
-        );
-      }
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please enter valid email'),
-          duration: Duration(seconds: 2),
-        ),
-      );
+    if (user != null) {
+      log("User Created Succesfully");
+      Navigator.pushReplacementNamed(context, '/');
     }
   }
 }

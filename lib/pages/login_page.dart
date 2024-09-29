@@ -1,7 +1,5 @@
 import 'dart:developer';
 
-import 'package:asset_guard/pages/register_page.dart';
-import 'package:asset_guard/pages/homepage.dart';
 import 'package:flutter/material.dart';
 import 'package:asset_guard/provider/auth_provider.dart';
 
@@ -83,11 +81,7 @@ class _LoginPageState extends State<LoginPage> {
               width: 330,
               child: ElevatedButton(
                 onPressed: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(builder: (BuildContext context) {
-                      return const RegisterPage();
-                    }),
-                  );
+                  Navigator.pushReplacementNamed(context, '/register');
                 },
                 child: const Text('Create a new account'),
               ),
@@ -102,11 +96,7 @@ class _LoginPageState extends State<LoginPage> {
     final user = await _auth.loginUser(_email.text, _password.text);
     if (user != null) {
       log("User Logged In");
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (BuildContext context) {
-          return const Homepage();
-        }),
-      );
+      Navigator.pushReplacementNamed(context, '/homepage');
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
