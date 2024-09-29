@@ -95,6 +95,8 @@ class LoginPage extends StatelessWidget {
                         child: ElevatedButton(
                           onPressed: () {
                             // _login();
+                            Provider.of<AuthProvider>(context, listen: false)
+                                .handleLogin("email@example.com", "password");
                           },
                           child: const Text('Login'),
                         ),
