@@ -27,66 +27,73 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Image.network(
-              'https://logos-world.net/wp-content/uploads/2022/07/Hilti-Logo.png',
-              height: 150,
-              width: 150,
-            ),
-            const Text(
-              'Welcome to Asset Guard!',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: Color.fromARGB(255, 202, 29, 29),
+        child: Padding(
+          padding:
+              const EdgeInsets.all(20.0),
+          child: ListView(
+            shrinkWrap:
+                true,
+            children: [
+              Image.network(
+                'https://logos-world.net/wp-content/uploads/2022/07/Hilti-Logo.png',
+                height: 150,
+                width: 150,
               ),
-            ),
-            const SizedBox(height: 20),
-            Padding(
-              padding: const EdgeInsets.all(20.0),
-              child: TextField(
-                controller: _email,
-                textInputAction: TextInputAction.next,
-                decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
-                  labelText: 'Email',
+              const SizedBox(height: 20),
+              const Text(
+                'Welcome to Asset Guard!',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Color.fromARGB(255, 202, 29, 29),
                 ),
               ),
-            ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(20, 8, 20, 8),
-              child: TextField(
-                controller: _password,
-                obscureText: true,
-                decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
-                  labelText: 'Password',
+              const SizedBox(height: 20),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: TextField(
+                  controller: _email,
+                  textInputAction: TextInputAction.next,
+                  decoration: const InputDecoration(
+                    border: OutlineInputBorder(),
+                    labelText: 'Email',
+                  ),
                 ),
               ),
-            ),
-            const SizedBox(height: 10),
-            SizedBox(
-              width: 330,
-              child: ElevatedButton(
-                onPressed: () {
-                  _login();
-                },
-                child: const Text('Login'),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
+                child: TextField(
+                  controller: _password,
+                  obscureText: true,
+                  decoration: const InputDecoration(
+                    border: OutlineInputBorder(),
+                    labelText: 'Password',
+                  ),
+                ),
               ),
-            ),
-            const SizedBox(height: 8),
-            SizedBox(
-              width: 330,
-              child: ElevatedButton(
-                onPressed: () {
-                  Navigator.pushReplacementNamed(context, '/register');
-                },
-                child: const Text('Create a new account'),
+              const SizedBox(height: 10),
+              SizedBox(
+                width: 330,
+                child: ElevatedButton(
+                  onPressed: () {
+                    _login();
+                  },
+                  child: const Text('Login'),
+                ),
               ),
-            ),
-          ],
+              const SizedBox(height: 8),
+              SizedBox(
+                width: 330,
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.pushReplacementNamed(context, '/register');
+                  },
+                  child: const Text('Create a new account'),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

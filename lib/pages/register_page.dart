@@ -33,108 +33,113 @@ class _RegisterPageState extends State<RegisterPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Text(
-              'Sign Up!',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: Color.fromARGB(255, 202, 29, 29),
-              ),
-            ),
-            const SizedBox(height: 20),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(20, 8, 20, 8),
-              child: TextField(
-                controller: _name,
-                textInputAction: TextInputAction.next,
-                decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
-                  labelText: 'Name',
+        child: Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: ListView(
+            shrinkWrap: true,
+            children: [
+              const Text(
+                'Sign Up!',
+                textAlign: TextAlign.center, // Center the text
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Color.fromARGB(255, 202, 29, 29),
                 ),
               ),
-            ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(20, 8, 20, 8),
-              child: TextField(
-                controller: _email,
-                textInputAction: TextInputAction.next,
-                decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
-                  labelText: 'Email',
+              const SizedBox(height: 20),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 8, 20, 8),
+                child: TextField(
+                  controller: _name,
+                  textInputAction: TextInputAction.next,
+                  decoration: const InputDecoration(
+                    border: OutlineInputBorder(),
+                    labelText: 'Name',
+                  ),
                 ),
               ),
-            ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(20, 8, 20, 8),
-              child: DropdownMenu<String>(
-                initialSelection: selectedRole,
-                expandedInsets: EdgeInsets.zero,
-                onSelected: (String? value) {
-                  setState(() {
-                    selectedRole = value!;
-                    role.remove('Select Role');
-                  });
-                },
-                dropdownMenuEntries:
-                    role.map<DropdownMenuEntry<String>>((String value) {
-                  return DropdownMenuEntry<String>(value: value, label: value);
-                }).toList(),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(20, 8, 20, 8),
-              child: TextField(
-                controller: _password,
-                obscureText: true,
-                decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
-                  labelText: 'Password',
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 8, 20, 8),
+                child: TextField(
+                  controller: _email,
+                  textInputAction: TextInputAction.next,
+                  decoration: const InputDecoration(
+                    border: OutlineInputBorder(),
+                    labelText: 'Email',
+                  ),
                 ),
               ),
-            ),
-            const SizedBox(height: 10),
-            SizedBox(
-              width: 330,
-              child: ElevatedButton(
-                onPressed: () {
-                  final bool isValid = EmailValidator.validate(_email.text);
-                  String password = _password.text;
-                  if (!isValid) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Invalid email'),
-                        duration: Duration(seconds: 2),
-                      ),
-                    );
-                  } else if (password.length < 6) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content:
-                            Text('Password should be at least 6 characters'),
-                        duration: Duration(seconds: 2),
-                      ),
-                    );
-                  } else {
-                    _signup();
-                  }
-                },
-                child: const Text('Register'),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 8, 20, 8),
+                child: DropdownMenu<String>(
+                  initialSelection: selectedRole,
+                  expandedInsets: EdgeInsets.zero,
+                  onSelected: (String? value) {
+                    setState(() {
+                      selectedRole = value!;
+                      role.remove('Select Role');
+                    });
+                  },
+                  dropdownMenuEntries:
+                      role.map<DropdownMenuEntry<String>>((String value) {
+                    return DropdownMenuEntry<String>(
+                        value: value, label: value);
+                  }).toList(),
+                ),
               ),
-            ),
-            const SizedBox(height: 8),
-            SizedBox(
-              width: 330,
-              child: ElevatedButton(
-                onPressed: () {
-                  Navigator.pushReplacementNamed(context, '/');
-                },
-                child: const Text('Already have an account?'),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 8, 20, 8),
+                child: TextField(
+                  controller: _password,
+                  obscureText: true,
+                  decoration: const InputDecoration(
+                    border: OutlineInputBorder(),
+                    labelText: 'Password',
+                  ),
+                ),
               ),
-            ),
-          ],
+              const SizedBox(height: 10),
+              SizedBox(
+                width: 330,
+                child: ElevatedButton(
+                  onPressed: () {
+                    final bool isValid = EmailValidator.validate(_email.text);
+                    String password = _password.text;
+                    if (!isValid) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Invalid email'),
+                          duration: Duration(seconds: 2),
+                        ),
+                      );
+                    } else if (password.length < 6) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content:
+                              Text('Password should be at least 6 characters'),
+                          duration: Duration(seconds: 2),
+                        ),
+                      );
+                    } else {
+                      _signup();
+                    }
+                  },
+                  child: const Text('Register'),
+                ),
+              ),
+              const SizedBox(height: 8),
+              SizedBox(
+                width: 330,
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.pushReplacementNamed(context, '/');
+                  },
+                  child: const Text('Already have an account?'),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -146,6 +151,12 @@ class _RegisterPageState extends State<RegisterPage> {
 
     if (user != null) {
       log("User Created Succesfully");
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('User created successfully!'),
+          duration: Duration(seconds: 2),
+        ),
+      );
       Navigator.pushReplacementNamed(context, '/');
     }
   }
