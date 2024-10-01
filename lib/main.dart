@@ -1,5 +1,6 @@
 import 'package:asset_guard/pages/homepage.dart';
 import 'package:asset_guard/pages/login_page.dart';
+import 'package:asset_guard/pages/profile_page.dart';
 import 'package:asset_guard/pages/register_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -31,7 +32,8 @@ class MyApp extends StatelessWidget {
       routes: {
         '/': (context) => const LoginPage(),
         '/register': (context) => const RegisterPage(),
-        '/homepage': (context) => const Homepage()
+        '/homepage': (context) => const Homepage(),
+        '/profile': (context) => const ProfilePage()
       },
     );
   }
