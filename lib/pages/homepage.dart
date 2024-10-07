@@ -12,7 +12,9 @@ class Homepage extends StatelessWidget {
           IconButton(
               icon: const Icon(Icons.notifications),
               tooltip: 'Notification',
-              onPressed: () {}),
+              onPressed: () {
+                Navigator.pushNamed(context, '/notification');
+              }),
           IconButton(
             icon: const Icon(Icons.account_circle_rounded),
             tooltip: 'Profile',

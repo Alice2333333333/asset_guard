@@ -92,22 +92,7 @@ class ProfilePage extends StatelessWidget {
                 ),
               ),
             ),
-            Container(
-              margin: const EdgeInsets.all(8),
-              child: SizedBox(
-                height: 50,
-                child: ElevatedButton(
-                  onPressed: () {},
-                  child: const Text(
-                    'Change Language',
-                    style: TextStyle(
-                      fontSize: 15,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(height: 120),
+            const SizedBox(height: 190),
             ElevatedButton(
               onPressed: () async {
                 await auth.signout();
