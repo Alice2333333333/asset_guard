@@ -1,13 +1,28 @@
+import 'package:asset_guard/pages/login_page.dart';
 import 'package:flutter/material.dart';
 
 import 'package:asset_guard/provider/auth_provider.dart';
+import 'package:provider/provider.dart';
 
-class ProfilePage extends StatelessWidget {
-  const ProfilePage({super.key});
+class ProfilePage extends StatefulWidget {
+  ProfilePage({super.key});
 
   @override
+  State<ProfilePage> createState() => _ProfilePageState();
+}
+
+class _ProfilePageState extends State<ProfilePage> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      authProvider.getUserDetailsFromPreferences();
+    });
+  }
+  @override
   Widget build(BuildContext context) {
-    final auth = AuthProvider();
+    final authProvider = Provider.of<AuthProvider>(context);
 
     return Scaffold(
       appBar: AppBar(
@@ -35,34 +50,34 @@ class ProfilePage extends StatelessWidget {
                 ),
                 borderRadius: BorderRadius.circular(15),
               ),
-              child: const SizedBox(
+              child: SizedBox(
                 width: 100,
                 height: 230,
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Center(
+                    const Center(
                       child: CircleAvatar(
                         radius: 50,
                         backgroundImage: NetworkImage(
                             'https://cdn-icons-png.flaticon.com/512/2716/2716808.png'),
                       ),
                     ),
-                    SizedBox(height: 20),
+                    const SizedBox(height: 20),
                     Text(
-                      'Name: Alice',
-                      style: TextStyle(fontSize: 16),
+                      'Name: ${authProvider.userName}',
+                      style: const TextStyle(fontSize: 16),
                     ),
-                    SizedBox(height: 10),
+                    const SizedBox(height: 10),
                     Text(
-                      'Email: alice@example.com',
-                      style: TextStyle(fontSize: 16),
+                      'Email: ${authProvider.userEmail}',
+                      style: const TextStyle(fontSize: 16),
                     ),
-                    SizedBox(height: 10),
+                    const SizedBox(height: 10),
                     Text(
-                      'Role: System Tester',
-                      style: TextStyle(fontSize: 16),
+                      'Role: ${authProvider.userRole}',
+                      style: const TextStyle(fontSize: 16),
                     ),
                   ],
                 ),
@@ -95,8 +110,12 @@ class ProfilePage extends StatelessWidget {
             const SizedBox(height: 190),
             ElevatedButton(
               onPressed: () async {
-                await auth.signout();
-                Navigator.pushNamed(context, '/');
+                await authProvider.signout();
+                Navigator.pushNamedAndRemoveUntil(
+                  context,
+                  '/',
+                  (Route<dynamic> route) => false,
+                );
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
                     content: Text('Logged out successfully'),
