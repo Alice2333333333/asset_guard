@@ -81,7 +81,7 @@ class _HomepageState extends State<Homepage> {
                       ),
                       trailing: const Icon(Icons.arrow_forward_ios, color: Colors.grey),
                       onTap: () {
-                        Navigator.pushNamed(context, '/asset');
+                        Navigator.pushNamed(context, '/asset', arguments: asset);
                       },
                     ),
                   ),
