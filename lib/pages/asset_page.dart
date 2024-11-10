@@ -7,38 +7,128 @@ class AssetPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final Map<String, dynamic> asset =
         ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>;
+
+    String condition = asset['condition'] ? 'Yes' : 'No';
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Asset Details'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+        child: ListView(
+          children: <Widget>[
+            Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(15),
+              ),
+              child: const Padding(
+                padding: EdgeInsets.all(8.0),
+                child: Image(
+                  width: double.infinity,
+                  height: 150,
+                  image: NetworkImage(
+                      'https://www.hilti.com.my/medias/sys_master/images/h7d/h71/9718078996510.jpg'),
+                ),
+              ),
+            ),
+            const SizedBox(height: 15),
             Text(
               '${asset['name']}',
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 10),
-            Text(
-              'Serial Number: ${asset['serialNumber']}',
-              style: const TextStyle(fontSize: 15),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Serial Number:',
+                        style: TextStyle(
+                            fontSize: 15, fontWeight: FontWeight.w500),
+                      ),
+                      SizedBox(height: 10),
+                      Text(
+                        'Type of Asset:',
+                        style: TextStyle(
+                            fontSize: 15, fontWeight: FontWeight.w500),
+                      ),
+                      SizedBox(height: 10),
+                      Text(
+                        'Price:',
+                        style: TextStyle(
+                            fontSize: 15, fontWeight: FontWeight.w500),
+                      ),
+                      SizedBox(height: 10),
+                      Text(
+                        'Condition:',
+                        style: TextStyle(
+                            fontSize: 15, fontWeight: FontWeight.w500),
+                      ),
+                    ],
+                  ),
+                ),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        '${asset['serialNumber']}',
+                        style: const TextStyle(fontSize: 15),
+                      ),
+                      const SizedBox(height: 10),
+                      Text(
+                        '${asset['type']}',
+                        style: const TextStyle(fontSize: 15),
+                      ),
+                      const SizedBox(height: 10),
+                      Text(
+                        'RM ${asset['price']}',
+                        style: const TextStyle(fontSize: 15),
+                      ),
+                      const SizedBox(height: 10),
+                      Text(
+                        condition,
+                        style: const TextStyle(fontSize: 15),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
-            const SizedBox(height: 10),
-            Text(
-              'Type of asset: ${asset['type']}',
-              style: const TextStyle(fontSize: 15),
+            const SizedBox(height: 20),
+            ElevatedButton.icon(
+              onPressed: () {
+                Navigator.pushNamed(context, '/usage');
+              },
+              icon: const Icon(Icons.analytics),
+              label: const Text('Usage'),
+              style: ElevatedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(vertical: 10.0),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                textStyle: const TextStyle(fontSize: 15),
+              ),
             ),
-            const SizedBox(height: 10),
-            Text(
-              'Price: ${asset['price']}',
-              style: const TextStyle(fontSize: 15),
-            ),
-            const SizedBox(height: 10),
-            Text(
-              'Condition: ${asset['condition']}',
-              style: const TextStyle(fontSize: 15),
+            const SizedBox(height: 20),
+            ElevatedButton.icon(
+              onPressed: () {
+                Navigator.pushNamed(context, '/maintenance');
+              },
+              icon: const Icon(Icons.build),
+              label: const Text('Maintenance Records'),
+              style: ElevatedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(vertical: 10.0),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                textStyle: const TextStyle(fontSize: 15),
+              ),
             ),
           ],
         ),
