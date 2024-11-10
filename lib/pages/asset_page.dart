@@ -106,7 +106,7 @@ class AssetPage extends StatelessWidget {
                 Navigator.pushNamed(context, '/usage');
               },
               icon: const Icon(Icons.analytics),
-              label: const Text('Usage'),
+              label: const Text('Usage Analysis'),
               style: ElevatedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(vertical: 10.0),
                 shape: RoundedRectangleBorder(
@@ -118,7 +118,7 @@ class AssetPage extends StatelessWidget {
             const SizedBox(height: 20),
             ElevatedButton.icon(
               onPressed: () {
-                Navigator.pushNamed(context, '/maintenance');
+                Navigator.pushNamed(context, '/maintenance', arguments: asset);
               },
               icon: const Icon(Icons.build),
               label: const Text('Maintenance Records'),

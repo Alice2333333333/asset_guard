@@ -7,7 +7,7 @@ class Usage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Usage'),
+        title: const Text('Usage Analysis'),
       ),
     );
   }
