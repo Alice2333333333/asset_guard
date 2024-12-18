@@ -8,7 +8,7 @@ class AssetPage extends StatelessWidget {
     final Map<String, dynamic> asset =
         ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>;
 
-    String condition = asset['condition'] ? 'Yes' : 'No';
+    String condition = asset['condition'] ? 'Good' : 'Bad';
 
     return Scaffold(
       appBar: AppBar(
@@ -103,7 +103,7 @@ class AssetPage extends StatelessWidget {
             const SizedBox(height: 20),
             ElevatedButton.icon(
               onPressed: () {
-                Navigator.pushNamed(context, '/usage');
+                Navigator.pushNamed(context, '/usage', arguments: asset);
               },
               icon: const Icon(Icons.analytics),
               label: const Text('Usage Analysis'),
