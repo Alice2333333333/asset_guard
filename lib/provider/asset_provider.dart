@@ -53,4 +53,35 @@ class AssetProvider extends ChangeNotifier {
 
     notifyListeners();
   }
+
+  // Future<void> fetchMonitorData(String assetId) async {
+  //   final CollectionReference dataCollection =
+  //       _firestore.collection('asset').doc(assetId).collection('data');
+
+  //   final QuerySnapshot dataSnapshot = await dataCollection.get();
+
+  //   _records = dataSnapshot.docs.map((doc) {
+  //     return {
+  //       'status': doc.id,
+  //       'count': doc['count'], 
+  //     };
+  //   }).toList();
+
+  //   notifyListeners();
+  // }
+
+  Stream<List<Map<String, dynamic>>> fetchMonitorData(String assetId) {
+    // Use a stream to listen to real-time updates in Firebase
+    return _firestore
+        .collection('asset')
+        .doc(assetId)
+        .collection('data')
+        .snapshots()
+        .map((snapshot) => snapshot.docs.map((doc) {
+              return {
+                'status': doc.id,
+                'count': doc['count'],
+              };
+            }).toList());
+  }
 }
