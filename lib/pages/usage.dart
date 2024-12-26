@@ -82,10 +82,25 @@ class _UsageState extends State<Usage> {
               return const Center(child: Text('No data available'));
             }
 
-            // Prepare data for the bar chart
-            final barGroups = data.map((item) {
-              final String status = item['status'] ?? 'Unknown';
-              final int countInSeconds = item['count'] ?? 0;
+            final sortedData = [
+              {'status': 'idle', 'count': 0},
+              {'status': 'minor_vibration', 'count': 0},
+              {'status': 'soft_concrete', 'count': 0},
+              {'status': 'hard_concrete', 'count': 0},
+            ];
+            for (var item in data) {
+              final index = sortedData
+                  .indexWhere((element) => element['status'] == item['status']);
+              if (index != -1) {
+                sortedData[index]['count'] = item['count'];
+              }
+            }
+
+            final barGroups = sortedData.map((item) {
+              final String status =
+                  item['status'] != null ? item['status'] as String : 'Unknown';
+              final int countInSeconds =
+                  item['count'] != null ? item['count'] as int : 0;
               final double timeInHours = countInSeconds / 3600;
               final int xValue = _statusToXValue(status);
               return BarChartGroupData(
@@ -94,28 +109,28 @@ class _UsageState extends State<Usage> {
                   BarChartRodData(
                     toY: double.parse(timeInHours.toStringAsFixed(2)),
                     width: 20,
-                    color: Colors.blueAccent,
+                    color: _getStatusColor(status),
                     borderRadius: BorderRadius.circular(4),
                   ),
                 ],
               );
             }).toList();
 
-            return Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                children: [
-                  SizedBox(
-                    height: 300,
+            return Column(
+              children: [
+                SizedBox(
+                  height: 300,
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(20.0, 20, 20, 0),
                     child: BarChart(
                       BarChartData(
                         alignment: BarChartAlignment.spaceAround,
-                        maxY: _getMaxY(data),
+                        maxY: _getMaxY(sortedData),
                         barGroups: barGroups,
-                        backgroundColor: Colors.grey[200], // Add background color
+                        backgroundColor: Colors.grey[200],
                         gridData: FlGridData(
                           show: true,
-                          horizontalInterval: 1, // Adjust spacing of grid lines
+                          horizontalInterval: 1,
                           drawVerticalLine: false,
                           getDrawingHorizontalLine: (value) => FlLine(
                             color: Colors.grey[400],
@@ -146,16 +161,14 @@ class _UsageState extends State<Usage> {
                             sideTitles: SideTitles(
                               showTitles: true,
                               getTitlesWidget: (value, _) {
-                                final String label = _xValueToStatus(value.toInt());
-                                return Padding(
-                                  padding: const EdgeInsets.only(top: 8.0),
-                                  child: Text(
-                                    label.isEmpty ? '' : label,
-                                    style: const TextStyle(
-                                      fontSize: 12,
-                                      color: Colors.black,
-                                      fontWeight: FontWeight.bold,
-                                    ),
+                                final String label =
+                                    _xValueToStatus(value.toInt());
+                                return Text(
+                                  label.isEmpty ? '' : label[0],
+                                  style: const TextStyle(
+                                    fontSize: 12,
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.bold,
                                   ),
                                 );
                               },
@@ -172,8 +185,30 @@ class _UsageState extends State<Usage> {
                       ),
                     ),
                   ),
-                ],
-              ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Legend:',
+                        style: TextStyle(
+                            fontSize: 16, fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(height: 8),
+                      _buildLegend('Idle', 'Status when the tool is not in use',
+                          Colors.green),
+                      _buildLegend('Minor Vib', 'Minor vibrations detected',
+                          Colors.orange),
+                      _buildLegend('Soft Con', 'Tool used on soft concrete',
+                          Colors.blue),
+                      _buildLegend('Hard Con', 'Tool used on hard concrete',
+                          Colors.red),
+                    ],
+                  ),
+                ),
+              ],
             );
           } else {
             return const Center(child: Text('No data available'));
@@ -183,6 +218,29 @@ class _UsageState extends State<Usage> {
     );
   }
 
+  Widget _buildLegend(String title, String description, Color color) {
+    return Row(
+      children: [
+        Container(
+          width: 10,
+          height: 10,
+          margin: const EdgeInsets.only(right: 8),
+          decoration: BoxDecoration(
+            color: color,
+            borderRadius: BorderRadius.circular(2),
+          ),
+        ),
+        Expanded(
+          child: Text(
+            '$title: $description',
+            style: const TextStyle(fontSize: 12),
+          ),
+        ),
+      ],
+    );
+  }
+
+  // Helper function to map status to x value
   int _statusToXValue(String status) {
     switch (status) {
       case 'idle':
@@ -214,10 +272,26 @@ class _UsageState extends State<Usage> {
     }
   }
 
-  // Helper function to calculate max Y value
+  // Helper function to get color based on status
+  Color _getStatusColor(String status) {
+    switch (status) {
+      case 'idle':
+        return Colors.green;
+      case 'minor_vibration':
+        return Colors.orange;
+      case 'soft_concrete':
+        return Colors.blue;
+      case 'hard_concrete':
+        return Colors.red;
+      default:
+        return Colors.grey;
+    }
+  }
+
   double _getMaxY(List<Map<String, dynamic>> data) {
-    final double maxTimeInHours =
-        data.map((item) => (item['count'] ?? 0) / 3600).reduce((a, b) => a > b ? a : b);
-    return (maxTimeInHours + 1).toDouble(); // Add some padding
+    final double maxTimeInHours = data
+        .map((item) => (item['count'] ?? 0) / 3600)
+        .reduce((a, b) => a > b ? a : b);
+    return (maxTimeInHours + 1).toDouble();
   }
 }
