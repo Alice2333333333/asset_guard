@@ -75,12 +75,12 @@ class AssetProvider extends ChangeNotifier {
     return _firestore
         .collection('asset')
         .doc(assetId)
-        .collection('data')
+        .collection('usage_data')
         .snapshots()
         .map((snapshot) => snapshot.docs.map((doc) {
               return {
-                'status': doc.id,
-                'count': doc['count'],
+                'date': doc.id,
+                'usage_hours': doc['usage_hours'],
               };
             }).toList());
   }
