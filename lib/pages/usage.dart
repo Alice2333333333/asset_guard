@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:asset_guard/provider/asset_provider.dart';
 import 'package:intl/intl.dart';
@@ -17,6 +15,7 @@ class _UsageState extends State<Usage> {
   String monthYearLabel = '';
   double totalUsage = 0.0;
   List<Map<String, dynamic>> processedData = [];
+  final AssetProvider assetProvider = AssetProvider();
 
   @override
   void didChangeDependencies() {
@@ -28,48 +27,12 @@ class _UsageState extends State<Usage> {
     _assetId = arguments?['id'] ?? '';
 
     if (_assetId.isNotEmpty) {
-      checkFlaskConnectionAndSendAssetId(_assetId);
-    }
-  }
-
-  Future<void> checkFlaskConnectionAndSendAssetId(String assetId) async {
-    try {
-      final url = Uri.parse('http://192.168.100.10:5000/monitor-usage');
-
-      final response = await http.get(url);
-
-      if (response.statusCode == 200) {
-        await sendAssetIdToFlask(assetId);
-      }
-    } catch (e) {
-      print(e);
-    }
-  }
-
-  Future<void> sendAssetIdToFlask(String assetId) async {
-    final url = Uri.parse('http://192.168.100.10:5000/send-assetid');
-
-    try {
-      final response = await http.post(
-        url,
-        headers: {"Content-Type": "application/json"},
-        body: jsonEncode({'assetid': assetId}),
-      );
-
-      if (response.statusCode == 200) {
-        print('Asset ID sent to Flask successfully');
-      } else {
-        print('Failed to send Asset ID to Flask');
-      }
-    } catch (e) {
-      print('Error sending Asset ID to Flask: $e');
+      assetProvider.checkFlaskConnectionAndSendAssetId(_assetId);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final AssetProvider assetProvider = AssetProvider();
-
     return Scaffold(
       appBar: AppBar(title: const Text('Usage Analysis')),
       body: StreamBuilder<List<Map<String, dynamic>>>(
@@ -93,8 +56,7 @@ class _UsageState extends State<Usage> {
               totalUsage = _calculateTotalUsage(data);
             }
 
-            // Prepare bar chart data
-            final barGroups = data.map((item) {
+            final barGroups = processedData.map((item) {
               final String date = item['date'] ?? '';
               final num usageHours = item['usage_hours'] ?? 0.0;
               final int day = _dayFromDate(date);
@@ -242,6 +204,15 @@ class _UsageState extends State<Usage> {
 
   void _processDataForLast7Days(List<Map<String, dynamic>> data) {
     final today = DateTime.now();
+    final last7DaysStart = today.subtract(const Duration(days: 6));
+
+    final filteredData = data.where((item) {
+      final recordDate = DateTime.parse(item['date']);
+      return recordDate
+              .isAfter(last7DaysStart.subtract(const Duration(days: 1))) &&
+          recordDate.isBefore(today.add(const Duration(days: 1)));
+    }).toList();
+
     final List<DateTime> last7Days = List.generate(
       7,
       (index) => today.subtract(Duration(days: index)),
@@ -249,7 +220,7 @@ class _UsageState extends State<Usage> {
 
     processedData = last7Days.map((date) {
       final formattedDate = DateFormat('yyyy-MM-dd').format(date);
-      final record = data.firstWhere(
+      final record = filteredData.firstWhere(
         (item) => item['date'] == formattedDate,
         orElse: () => {'date': formattedDate, 'usage_hours': 0.0},
       );
@@ -300,13 +271,13 @@ class _UsageState extends State<Usage> {
 
   Color _getColorForDay(int day) {
     const colors = [
-      Colors.blue,
       Colors.red,
-      Colors.green,
       Colors.orange,
-      Colors.purple,
-      Colors.pink,
-      Colors.yellow,
+      Colors.green,
+      Colors.lightBlue,
+      Colors.lightGreen,
+      Colors.grey,
+      Colors.black,
     ];
     return colors[day % colors.length];
   }
