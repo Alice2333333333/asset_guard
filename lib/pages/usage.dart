@@ -96,7 +96,7 @@ class _UsageState extends State<Usage> {
             // Prepare bar chart data
             final barGroups = data.map((item) {
               final String date = item['date'] ?? '';
-              final double usageHours = item['usage_hours'] ?? 0.0;
+              final num usageHours = item['usage_hours'] ?? 0.0;
               final int day = _dayFromDate(date);
 
               return BarChartGroupData(
@@ -117,7 +117,7 @@ class _UsageState extends State<Usage> {
                 SizedBox(
                   height: 400,
                   child: Padding(
-                    padding: const EdgeInsets.fromLTRB(20, 10, 20, 0),
+                    padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
                     child: BarChart(
                       BarChartData(
                         alignment: BarChartAlignment.spaceEvenly,
@@ -199,6 +199,37 @@ class _UsageState extends State<Usage> {
                     ),
                   ),
                 ),
+                const SizedBox(height: 20),
+                Container(
+                  width: double.infinity,
+                  margin: const EdgeInsets.symmetric(horizontal: 20),
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.blueAccent.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: const Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        'Remaining Usage: 547.5 hours',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      SizedBox(height: 10),
+                      Text(
+                        'Next Maintenance: 12 Jan 2025',
+                        style: TextStyle(
+                          color: Colors.red,
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ],
             );
           } else {
@@ -228,7 +259,6 @@ class _UsageState extends State<Usage> {
     processedData.sort((a, b) => a['date'].compareTo(b['date']));
   }
 
-// Extract day from date
   int _dayFromDate(String date) {
     return int.tryParse(date.split('-').last) ?? 0;
   }
@@ -262,7 +292,7 @@ class _UsageState extends State<Usage> {
   }
 
   double _getMaxY(List<Map<String, dynamic>> data) {
-    final double maxTimeInHours = data
+    final num maxTimeInHours = data
         .map((item) => item['usage_hours'] ?? 0.0)
         .reduce((a, b) => a > b ? a : b);
     return (maxTimeInHours + 1).toDouble();
