@@ -14,7 +14,9 @@ class _UsageState extends State<Usage> {
   late String _assetId;
   String monthYearLabel = '';
   double totalUsage = 0.0;
+  double remainingUsage = 0.0;
   List<Map<String, dynamic>> processedData = [];
+  DateTime? nextMaintenance;
   final AssetProvider assetProvider = AssetProvider();
 
   @override
@@ -53,7 +55,15 @@ class _UsageState extends State<Usage> {
             if (data.isNotEmpty) {
               final firstDate = data.first['date'] ?? '';
               monthYearLabel = _extractMonthYear(firstDate);
-              totalUsage = _calculateTotalUsage(data);
+              totalUsage = assetProvider.calculateTotalUsage(data);
+              remainingUsage =
+                  assetProvider.calculateRemainingUsage(totalUsage);
+
+              assetProvider.storeTotalUsage(_assetId, totalUsage);
+              assetProvider.storeRemainingUsage(_assetId, remainingUsage);
+              nextMaintenance =
+                  assetProvider.calculateNextMaintenance(remainingUsage);
+              // assetProvider.storeNextMaintenance(_assetId, nextMaintenance);
             }
 
             final barGroups = processedData.map((item) {
@@ -170,20 +180,20 @@ class _UsageState extends State<Usage> {
                     color: Colors.blueAccent.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  child: const Column(
+                  child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        'Remaining Usage: 547.5 hours',
-                        style: TextStyle(
+                        'Remaining Usage: ${remainingUsage.toStringAsFixed(2)} hours',
+                        style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      SizedBox(height: 10),
+                      const SizedBox(height: 10),
                       Text(
-                        'Next Maintenance: 12 Jan 2025',
-                        style: TextStyle(
+                        'Next Maintenance: ${nextMaintenance != null ? DateFormat('dd MMM yyyy').format(nextMaintenance!) : 'Not Available'}',
+                        style: const TextStyle(
                           color: Colors.red,
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
@@ -256,10 +266,6 @@ class _UsageState extends State<Usage> {
       'December'
     ];
     return monthNames[month - 1];
-  }
-
-  double _calculateTotalUsage(List<Map<String, dynamic>> data) {
-    return data.fold(0.0, (sum, item) => sum + (item['usage_hours'] ?? 0.0));
   }
 
   double _getMaxY(List<Map<String, dynamic>> data) {
