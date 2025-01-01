@@ -25,6 +25,7 @@ class AssetProvider extends ChangeNotifier {
         'condition': doc['condition'] ?? 'N/A',
         'price': doc['price'] ?? 'N/A',
         'type': doc['type'] ?? 'N/A',
+        'next_maintenance': doc['next_maintenance'],
       };
     }).toList();
 
