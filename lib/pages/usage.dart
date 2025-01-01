@@ -61,23 +61,23 @@ class _UsageState extends State<Usage> {
 
               assetProvider.storeTotalUsage(_assetId, totalUsage);
               assetProvider.storeRemainingUsage(_assetId, remainingUsage);
-              nextMaintenance =
-                  assetProvider.calculateNextMaintenance(remainingUsage, firstDate);
+              nextMaintenance = assetProvider.calculateNextMaintenance(
+                  remainingUsage, firstDate);
               assetProvider.storeNextMaintenance(_assetId, nextMaintenance);
             }
 
-            final barGroups = processedData.map((item) {
-              final String date = item['date'] ?? '';
+            final barGroups = processedData.asMap().entries.map((entry) {
+              int index = entry.key;
+              final item = entry.value;
               final num usageHours = item['usage_hours'] ?? 0.0;
-              final int day = _dayFromDate(date);
 
               return BarChartGroupData(
-                x: day,
+                x: index,
                 barRods: [
                   BarChartRodData(
                     toY: double.parse(usageHours.toStringAsFixed(2)),
                     width: 25,
-                    color: _getColorForDay(day),
+                    color: _getColorForDay(index),
                     borderRadius: BorderRadius.circular(4),
                   ),
                 ],
@@ -131,13 +131,33 @@ class _UsageState extends State<Usage> {
                           bottomTitles: AxisTitles(
                             sideTitles: SideTitles(
                               showTitles: true,
+                              reservedSize:
+                                  50, // Increased space for better readability
                               getTitlesWidget: (value, _) {
-                                return Text(
-                                  value.toInt().toString(),
-                                  style: const TextStyle(fontSize: 12),
-                                );
+                                int index = value.toInt();
+                                if (index >= 0 &&
+                                    index < processedData.length) {
+                                  DateTime date = DateTime.parse(
+                                      processedData[index]['date']);
+                                  String formattedDate =
+                                      DateFormat('d MMM yyyy').format(date);
+                                  return Padding(
+                                    padding: const EdgeInsets.only(top: 25.0),
+                                    child: Transform.rotate(
+                                      angle: -1,
+                                      child: Text(
+                                        formattedDate,
+                                        style: const TextStyle(
+                                            fontSize: 11,
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                                    ),
+                                  );
+                                } else {
+                                  return Container();
+                                }
                               },
-                              reservedSize: 30,
+                              interval: 1,
                             ),
                           ),
                         ),
@@ -145,13 +165,15 @@ class _UsageState extends State<Usage> {
                     ),
                   ),
                 ),
-                const SizedBox(height: 10),
+                const SizedBox(height: 30),
                 Text(
-                  'Usage for $monthYearLabel',
+                  'Updated on ${DateFormat('d MMM yyyy, hh:mm a').format(DateTime.now())}',
                   style: const TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.bold,
+                    color: Colors.blueAccent,
                   ),
+                  textAlign: TextAlign.start,
                 ),
                 const SizedBox(height: 20),
                 Container(
@@ -214,34 +236,19 @@ class _UsageState extends State<Usage> {
 
   void _processDataForLast7Days(List<Map<String, dynamic>> data) {
     final today = DateTime.now();
-    final last7DaysStart = today.subtract(const Duration(days: 6));
-
-    final filteredData = data.where((item) {
-      final recordDate = DateTime.parse(item['date']);
-      return recordDate
-              .isAfter(last7DaysStart.subtract(const Duration(days: 1))) &&
-          recordDate.isBefore(today.add(const Duration(days: 1)));
-    }).toList();
-
     final List<DateTime> last7Days = List.generate(
       7,
-      (index) => today.subtract(Duration(days: index)),
+      (index) => today.subtract(Duration(days: 6 - index)), // Ascending order
     );
 
     processedData = last7Days.map((date) {
       final formattedDate = DateFormat('yyyy-MM-dd').format(date);
-      final record = filteredData.firstWhere(
+      final record = data.firstWhere(
         (item) => item['date'] == formattedDate,
         orElse: () => {'date': formattedDate, 'usage_hours': 0.0},
       );
       return record;
     }).toList();
-
-    processedData.sort((a, b) => a['date'].compareTo(b['date']));
-  }
-
-  int _dayFromDate(String date) {
-    return int.tryParse(date.split('-').last) ?? 0;
   }
 
   String _extractMonthYear(String date) {
