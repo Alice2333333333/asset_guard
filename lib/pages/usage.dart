@@ -62,8 +62,8 @@ class _UsageState extends State<Usage> {
               assetProvider.storeTotalUsage(_assetId, totalUsage);
               assetProvider.storeRemainingUsage(_assetId, remainingUsage);
               nextMaintenance =
-                  assetProvider.calculateNextMaintenance(remainingUsage);
-              // assetProvider.storeNextMaintenance(_assetId, nextMaintenance);
+                  assetProvider.calculateNextMaintenance(remainingUsage, firstDate);
+              assetProvider.storeNextMaintenance(_assetId, nextMaintenance);
             }
 
             final barGroups = processedData.map((item) {

@@ -140,8 +140,8 @@ class AssetProvider extends ChangeNotifier {
     }
   }
 
-  DateTime calculateNextMaintenance(double remainingUsage) {
-    final DateTime today = DateTime.now();
+  DateTime calculateNextMaintenance(double remainingUsage, String firstDate) {
+    DateTime startDate = DateTime.tryParse(firstDate) ?? DateTime.now();
     double hoursToAdd = 0;
 
     if (remainingUsage < 182.5) {
@@ -154,11 +154,16 @@ class AssetProvider extends ChangeNotifier {
       hoursToAdd = 730;
     }
 
-    return today.add(Duration(hours: hoursToAdd.toInt()));
+    return startDate.add(Duration(hours: hoursToAdd.toInt()));
   }
 
   Future<void> storeNextMaintenance(
-      String assetId, DateTime maintenanceDate) async {
+      String assetId, DateTime? maintenanceDate) async {
+    if (maintenanceDate == null) {
+      debugPrint('Maintenance date is null. Skipping storage.');
+      return;
+    }
+
     final docRef = FirebaseFirestore.instance.collection('asset').doc(assetId);
 
     try {
