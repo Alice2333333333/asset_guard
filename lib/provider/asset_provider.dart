@@ -23,6 +23,7 @@ class AssetProvider extends ChangeNotifier {
         'name': doc['name'] ?? 'Unknown Asset',
         'serialNumber': doc['serial_number'] ?? 'N/A',
         'condition': doc['condition'] ?? 'N/A',
+        'description': doc['description'] ?? 'N/A',
         'price': doc['price'] ?? 'N/A',
         'type': doc['type'] ?? 'N/A',
         'next_maintenance': doc['next_maintenance'],

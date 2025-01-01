@@ -9,10 +9,15 @@ class AssetPage extends StatelessWidget {
         ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>;
 
     String condition = asset['condition'] ? 'Good' : 'Bad';
+    Color conditionColor = asset['condition'] ? Colors.green : Colors.red;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Asset Details'),
+        title: const Text(
+          'Asset Details',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+        backgroundColor: const Color.fromARGB(255, 144, 181, 212),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -22,12 +27,20 @@ class AssetPage extends StatelessWidget {
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(15),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withOpacity(0.1),
+                    spreadRadius: 3,
+                    blurRadius: 6,
+                    offset: const Offset(0, 3),
+                  ),
+                ],
               ),
               child: const Padding(
                 padding: EdgeInsets.all(8.0),
                 child: Image(
                   width: double.infinity,
-                  height: 150,
+                  height: 170,
                   image: NetworkImage(
                       'https://www.hilti.com.my/medias/sys_master/images/h7d/h71/9718078996510.jpg'),
                 ),
@@ -35,99 +48,110 @@ class AssetPage extends StatelessWidget {
             ),
             const SizedBox(height: 15),
             Text(
-              '${asset['name']}',
-              style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+              asset['name'],
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
             ),
             const SizedBox(height: 10),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Serial Number:',
-                        style: TextStyle(
-                            fontSize: 15, fontWeight: FontWeight.w500),
-                      ),
-                      SizedBox(height: 10),
-                      Text(
-                        'Type of Asset:',
-                        style: TextStyle(
-                            fontSize: 15, fontWeight: FontWeight.w500),
-                      ),
-                      SizedBox(height: 10),
-                      Text(
-                        'Price:',
-                        style: TextStyle(
-                            fontSize: 15, fontWeight: FontWeight.w500),
-                      ),
-                      SizedBox(height: 10),
-                      Text(
-                        'Condition:',
-                        style: TextStyle(
-                            fontSize: 15, fontWeight: FontWeight.w500),
-                      ),
-                    ],
-                  ),
+            Container(
+              padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 16),
+              margin: const EdgeInsets.symmetric(horizontal: 90),
+              decoration: BoxDecoration(
+                color: conditionColor.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(40),
+                border: Border.all(color: conditionColor, width: 1.5),
+              ),
+              alignment: Alignment.center,
+              child: Text(
+                condition,
+                style: TextStyle(
+                  color: conditionColor,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
                 ),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        '${asset['serialNumber']}',
-                        style: const TextStyle(fontSize: 15),
-                      ),
-                      const SizedBox(height: 10),
-                      Text(
-                        '${asset['type']}',
-                        style: const TextStyle(fontSize: 15),
-                      ),
-                      const SizedBox(height: 10),
-                      Text(
-                        'RM ${asset['price']}',
-                        style: const TextStyle(fontSize: 15),
-                      ),
-                      const SizedBox(height: 10),
-                      Text(
-                        condition,
-                        style: const TextStyle(fontSize: 15),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
+                textAlign: TextAlign.center,
+              ),
             ),
-            const SizedBox(height: 20),
+            Card(
+              elevation: 4,
+              margin: const EdgeInsets.symmetric(vertical: 15),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(15),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Asset Information',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black,
+                      ),
+                    ),
+                    const Divider(thickness: 1.2),
+                    const SizedBox(height: 10),
+                    _buildStackedAssetDetailRow(
+                        Icons.vpn_key, 'Serial Number:', asset['serialNumber']),
+                    const Divider(),
+                    _buildStackedAssetDetailRow(Icons.description,
+                        'Description:', asset['description']),
+                    const Divider(),
+                    _buildStackedAssetDetailRow(
+                        Icons.category, 'Type of Asset:', asset['type']),
+                    const Divider(),
+                    _buildStackedAssetDetailRow(
+                        Icons.attach_money, 'Price:', 'RM ${asset['price']}'),
+                    const Divider(),
+                    _buildStackedAssetDetailRow(
+                        Icons.calendar_today,
+                        'Next Maintenance:',
+                        asset['next_maintenance'] ?? 'Not Scheduled'),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 10),
             ElevatedButton.icon(
               onPressed: () {
                 Navigator.pushNamed(context, '/usage', arguments: asset);
               },
-              icon: const Icon(Icons.analytics),
-              label: const Text('Usage Analysis'),
+              icon: const Icon(Icons.analytics, color: Colors.white),
+              label: const Text(
+                'Usage Analysis',
+                style: TextStyle(color: Colors.white),
+              ),
               style: ElevatedButton.styleFrom(
+                backgroundColor: const Color.fromARGB(255, 73, 121, 160),
                 padding: const EdgeInsets.symmetric(vertical: 10.0),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
-                textStyle: const TextStyle(fontSize: 15),
+                textStyle: const TextStyle(fontSize: 17),
               ),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 10),
             ElevatedButton.icon(
               onPressed: () {
                 Navigator.pushNamed(context, '/maintenance', arguments: asset);
               },
-              icon: const Icon(Icons.build),
-              label: const Text('Maintenance Records'),
+              icon: const Icon(Icons.build, color: Colors.white),
+              label: const Text(
+                'Maintenance Records',
+                style: TextStyle(color: Colors.white),
+              ),
               style: ElevatedButton.styleFrom(
+                backgroundColor: const Color.fromARGB(255, 73, 121, 160),
                 padding: const EdgeInsets.symmetric(vertical: 10.0),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
-                textStyle: const TextStyle(fontSize: 15),
+                textStyle: const TextStyle(fontSize: 17),
               ),
             ),
           ],
@@ -135,4 +159,35 @@ class AssetPage extends StatelessWidget {
       ),
     );
   }
+}
+
+Widget _buildStackedAssetDetailRow(IconData icon, String label, String value) {
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Row(
+        children: [
+          Icon(icon, color: const Color.fromARGB(255, 84, 141, 188)),
+          const SizedBox(width: 12),
+          Text(
+            label,
+            style: const TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ],
+      ),
+      const SizedBox(height: 8),
+      Padding(
+        padding: const EdgeInsets.only(left: 36),
+        child: Text(
+          value,
+          style: const TextStyle(
+            fontSize: 16,
+          ),
+        ),
+      ),
+    ],
+  );
 }

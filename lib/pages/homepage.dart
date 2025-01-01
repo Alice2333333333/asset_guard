@@ -78,12 +78,10 @@ class _HomepageState extends State<Homepage> {
                   itemBuilder: (context, index) {
                     final asset = assets[index];
                     final bool isConditionGood = asset['condition'] ?? false;
-                    // print(isConditionGood);
                     final conditionColor = _getConditionColor(isConditionGood);
                     final conditionIcon =
                         isConditionGood ? Icons.check_circle : Icons.cancel;
                     final maintenanceDate = asset['next_maintenance'];
-                    // print(maintenanceDate);
 
                     return Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
