@@ -51,6 +51,7 @@ class AssetProvider extends ChangeNotifier {
         'date_complete': doc['date_complete'],
         'cost': doc['cost'],
         'description': doc['description'],
+        'status': doc['status'],
       };
     }).toList();
 

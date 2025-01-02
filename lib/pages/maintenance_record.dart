@@ -20,7 +20,11 @@ class MaintenanceRecord extends StatelessWidget {
         builder: (context, snapshot) {
           return Scaffold(
             appBar: AppBar(
-              title: const Text('Maintenance Records'),
+              title: const Text(
+                'Maintenance Records',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              backgroundColor: const Color.fromARGB(255, 144, 181, 212),
             ),
             body: Consumer<AssetProvider>(
               builder: (context, assetProvider, child) {
@@ -28,7 +32,10 @@ class MaintenanceRecord extends StatelessWidget {
 
                 if (records.isEmpty) {
                   return const Center(
-                      child: Text("No maintenance records found"));
+                      child: Text(
+                    "No maintenance records found",
+                    style: TextStyle(fontSize: 18, color: Colors.black54),
+                  ));
                 }
 
                 return ListView.separated(
@@ -42,53 +49,121 @@ class MaintenanceRecord extends StatelessWidget {
                             .format(record['date'].toDate())
                         : record['date'].toString();
 
-                    String formattedCompletedDate = record['date_complete'] is Timestamp
-                        ? DateFormat('yyyy-MM-dd')
-                            .format(record['date_complete'].toDate())
-                        : record['date_complete'].toString();
-                    return Card(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8.0),
+                    String formattedCompletedDate =
+                        record['date_complete'] is Timestamp
+                            ? DateFormat('yyyy-MM-dd')
+                                .format(record['date_complete'].toDate())
+                            : record['date_complete'].toString();
+
+                    bool isCompleted = record['status'] == 'completed';
+                    Color borderColor =
+                        isCompleted ? Colors.green : Colors.blue;
+                    IconData statusIcon = isCompleted
+                        ? Icons.check_circle_rounded
+                        : Icons.handyman;
+
+                    return Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: borderColor.withOpacity(0.6),
+                          width: 1.5,
+                        ),
+                        color: borderColor.withOpacity(0.05),
                       ),
-                      elevation: 3,
-                      child: ListTile(
-                        leading: Container(
-                          padding: const EdgeInsets.all(8.0),
-                          decoration: BoxDecoration(
-                            color: Colors.blueAccent.withOpacity(0.1),
-                            shape: BoxShape.circle,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Row(
+                                children: [
+                                  const Icon(Icons.home_repair_service_rounded,
+                                      color: Colors.blueAccent, size: 30),
+                                  const SizedBox(width: 12),
+                                  Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        formattedDate,
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 16,
+                                        ),
+                                      ),
+                                      Text(
+                                        isCompleted ? 'Completed' : 'In Repair',
+                                        style: TextStyle(
+                                          color: borderColor,
+                                          fontWeight: FontWeight.w600,
+                                          fontSize: 14,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                              Icon(
+                                statusIcon,
+                                color: borderColor,
+                                size: 28,
+                              ),
+                            ],
                           ),
-                          child:
-                              const Icon(Icons.home_repair_service_rounded, color: Colors.blueAccent),
-                        ),
-                        title: Text(
-                          formattedDate,
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 14,
-                          ),
-                        ),
-                        subtitle: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text("Technician: ${record['technician']}"),
-                            Text("Duration: ${record['duration']} days"),
-                            Text(
-                                "Expected Completion: $formattedCompletedDate"),
-                            Text("Cost: RM ${record['cost']}"),
-                            Text("Description: ${record['description']}"),
-                          ],
-                        ),
+                          const Divider(height: 24, thickness: 1),
+                          const SizedBox(height: 8),
+                          _buildDetailRow(
+                              Icons.person, "Technician", record['technician']),
+                          _buildDetailRow(Icons.timelapse, "Duration",
+                              "${record['duration']} days"),
+                          _buildDetailRow(Icons.date_range,
+                              "Expected Completion", formattedCompletedDate),
+                          _buildDetailRow(Icons.attach_money, "Cost",
+                              "RM ${record['cost']}"),
+                          _buildDetailRow(Icons.description, "Description",
+                              record['description'] ?? "No description"),
+                        ],
                       ),
                     );
                   },
                   separatorBuilder: (context, index) =>
-                      const SizedBox(height: 8),
+                      const SizedBox(height: 12),
                 );
               },
             ),
           );
-        }
-        );
+        });
+  }
+
+  Widget _buildDetailRow(IconData icon, String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 6),
+      child: Row(
+        children: [
+          Icon(icon, color: Colors.blueGrey, size: 22),
+          const SizedBox(width: 12),
+          Text(
+            "$label: ",
+            style: const TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.w500,
+              color: Colors.black87,
+            ),
+          ),
+          Expanded(
+            child: Text(
+              value,
+              style: const TextStyle(
+                fontSize: 15,
+                color: Colors.black54,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
