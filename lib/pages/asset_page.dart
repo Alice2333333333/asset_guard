@@ -124,15 +124,17 @@ class AssetPage extends StatelessWidget {
               icon: const Icon(Icons.analytics, color: Colors.white),
               label: const Text(
                 'Usage Analysis',
-                style: TextStyle(color: Colors.white),
+                style: TextStyle(
+                  fontSize: 15,
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color.fromARGB(255, 73, 121, 160),
-                padding: const EdgeInsets.symmetric(vertical: 10.0),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                textStyle: const TextStyle(fontSize: 17),
+                backgroundColor: const Color.fromARGB(255, 25, 58, 94),
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                elevation: 6,
+                shadowColor: Colors.black.withOpacity(0.1),
               ),
             ),
             const SizedBox(height: 10),
@@ -140,18 +142,22 @@ class AssetPage extends StatelessWidget {
               onPressed: () {
                 Navigator.pushNamed(context, '/maintenance', arguments: asset);
               },
-              icon: const Icon(Icons.build, color: Colors.white),
+              icon: const Icon(
+                Icons.build,
+                color: Color.fromARGB(255, 25, 58, 94),
+              ),
               label: const Text(
                 'Maintenance Records',
-                style: TextStyle(color: Colors.white),
+                style: TextStyle(
+                  fontSize: 15,
+                  color: Color.fromARGB(255, 25, 58, 94),
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color.fromARGB(255, 73, 121, 160),
-                padding: const EdgeInsets.symmetric(vertical: 10.0),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                textStyle: const TextStyle(fontSize: 17),
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                elevation: 3,
+                shadowColor: Colors.black.withOpacity(1),
               ),
             ),
           ],

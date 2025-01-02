@@ -211,6 +211,7 @@ class _UsageState extends State<Usage> {
                       'Total Usage: ${totalUsage.toStringAsFixed(2)} hours',
                       textAlign: TextAlign.center,
                       style: const TextStyle(
+                        color: Color.fromARGB(255, 25, 58, 94),
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
                       ),
@@ -231,6 +232,7 @@ class _UsageState extends State<Usage> {
                         Text(
                           'Remaining Usage: ${remainingUsage.toStringAsFixed(2)} hours',
                           style: const TextStyle(
+                            color: Color.fromARGB(255, 25, 58, 94),
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
                           ),
