@@ -36,7 +36,13 @@ class _UsageState extends State<Usage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Usage Analysis')),
+      appBar: AppBar(
+        title: const Text(
+          'Usage Analysis',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+        backgroundColor: const Color.fromARGB(255, 144, 181, 212),
+      ),
       body: StreamBuilder<List<Map<String, dynamic>>>(
         stream: assetProvider.fetchMonitorData(_assetId),
         builder: (context, snapshot) {
@@ -84,147 +90,165 @@ class _UsageState extends State<Usage> {
               );
             }).toList();
 
-            return Column(
-              children: [
-                SizedBox(
-                  height: 400,
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
-                    child: BarChart(
-                      BarChartData(
-                        alignment: BarChartAlignment.spaceEvenly,
-                        maxY: _getMaxY(processedData),
-                        barGroups: barGroups,
-                        // backgroundColor:
-                        //     const Color.fromARGB(255, 255, 255, 255),
-                        gridData: FlGridData(
-                          show: true,
-                          horizontalInterval: 1,
-                          drawVerticalLine: false,
-                          getDrawingHorizontalLine: (value) => FlLine(
-                            color: Colors.grey[400],
-                            strokeWidth: 1,
+            return SingleChildScrollView(
+              child: Column(
+                children: [
+                  const SizedBox(height: 10),
+                  const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 10.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Text(
+                          'Tool Usage in the Last 7 Days',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
-                        titlesData: FlTitlesData(
-                          leftTitles: AxisTitles(
-                            sideTitles: SideTitles(
-                              showTitles: true,
-                              reservedSize: 40,
-                              getTitlesWidget: (value, _) {
-                                return Text(
-                                  '${value.toStringAsFixed(1)} h',
-                                  style: const TextStyle(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                );
-                              },
+                        SizedBox(height: 5),
+                      ],
+                    ),
+                  ),
+                  SizedBox(
+                    height: 400,
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+                      child: BarChart(
+                        BarChartData(
+                          alignment: BarChartAlignment.spaceEvenly,
+                          maxY: _getMaxY(processedData),
+                          barGroups: barGroups,
+                          backgroundColor:
+                              const Color.fromARGB(255, 255, 255, 255),
+                          gridData: FlGridData(
+                            show: true,
+                            horizontalInterval: 1,
+                            drawVerticalLine: false,
+                            getDrawingHorizontalLine: (value) => FlLine(
+                              color: Colors.grey[400],
+                              strokeWidth: 1,
                             ),
                           ),
-                          topTitles: const AxisTitles(
-                            sideTitles: SideTitles(showTitles: false),
-                          ),
-                          rightTitles: const AxisTitles(
-                            sideTitles: SideTitles(showTitles: false),
-                          ),
-                          bottomTitles: AxisTitles(
-                            sideTitles: SideTitles(
-                              showTitles: true,
-                              reservedSize:
-                                  50, // Increased space for better readability
-                              getTitlesWidget: (value, _) {
-                                int index = value.toInt();
-                                if (index >= 0 &&
-                                    index < processedData.length) {
-                                  DateTime date = DateTime.parse(
-                                      processedData[index]['date']);
-                                  String formattedDate =
-                                      DateFormat('d MMM yyyy').format(date);
-                                  return Padding(
-                                    padding: const EdgeInsets.only(top: 25.0),
-                                    child: Transform.rotate(
-                                      angle: -1,
-                                      child: Text(
-                                        formattedDate,
-                                        style: const TextStyle(
-                                            fontSize: 11,
-                                            fontWeight: FontWeight.bold),
-                                      ),
+                          titlesData: FlTitlesData(
+                            leftTitles: AxisTitles(
+                              sideTitles: SideTitles(
+                                showTitles: true,
+                                reservedSize: 40,
+                                getTitlesWidget: (value, _) {
+                                  return Text(
+                                    '${value.toStringAsFixed(1)} h',
+                                    style: const TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.bold,
                                     ),
                                   );
-                                } else {
-                                  return Container();
-                                }
-                              },
-                              interval: 1,
+                                },
+                              ),
+                            ),
+                            topTitles: const AxisTitles(
+                              sideTitles: SideTitles(showTitles: false),
+                            ),
+                            rightTitles: const AxisTitles(
+                              sideTitles: SideTitles(showTitles: false),
+                            ),
+                            bottomTitles: AxisTitles(
+                              sideTitles: SideTitles(
+                                showTitles: true,
+                                reservedSize: 50,
+                                getTitlesWidget: (value, _) {
+                                  int index = value.toInt();
+                                  if (index >= 0 &&
+                                      index < processedData.length) {
+                                    DateTime date = DateTime.parse(
+                                        processedData[index]['date']);
+                                    String formattedDate =
+                                        DateFormat('d MMM yyyy').format(date);
+                                    return Padding(
+                                      padding: const EdgeInsets.only(top: 25.0),
+                                      child: Transform.rotate(
+                                        angle: -1,
+                                        child: Text(
+                                          formattedDate,
+                                          style: const TextStyle(
+                                              fontSize: 11,
+                                              fontWeight: FontWeight.bold),
+                                        ),
+                                      ),
+                                    );
+                                  } else {
+                                    return Container();
+                                  }
+                                },
+                                interval: 1,
+                              ),
                             ),
                           ),
                         ),
                       ),
                     ),
                   ),
-                ),
-                const SizedBox(height: 30),
-                Text(
-                  'Updated on ${DateFormat('d MMM yyyy, hh:mm a').format(DateTime.now())}',
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.blueAccent,
-                  ),
-                  textAlign: TextAlign.start,
-                ),
-                const SizedBox(height: 20),
-                Container(
-                  width: double.infinity,
-                  margin: const EdgeInsets.symmetric(horizontal: 20),
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: Colors.blueAccent.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Text(
-                    'Total Usage: ${totalUsage.toStringAsFixed(2)} hours',
-                    textAlign: TextAlign.center,
+                  const SizedBox(height: 30),
+                  Text(
+                    'Updated on ${DateFormat('d MMM yyyy, hh:mm a').format(DateTime.now())}',
                     style: const TextStyle(
-                      fontSize: 16,
+                      fontSize: 14,
                       fontWeight: FontWeight.bold,
+                      color: Color.fromARGB(255, 255, 0, 0),
+                    ),
+                    textAlign: TextAlign.start,
+                  ),
+                  const SizedBox(height: 20),
+                  Container(
+                    width: double.infinity,
+                    margin: const EdgeInsets.symmetric(horizontal: 20),
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Colors.blueAccent.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Text(
+                      'Total Usage: ${totalUsage.toStringAsFixed(2)} hours',
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
-                ),
-                const SizedBox(height: 20),
-                Container(
-                  width: double.infinity,
-                  margin: const EdgeInsets.symmetric(horizontal: 20),
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: Colors.blueAccent.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        'Remaining Usage: ${remainingUsage.toStringAsFixed(2)} hours',
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
+                  const SizedBox(height: 20),
+                  Container(
+                    width: double.infinity,
+                    margin: const EdgeInsets.symmetric(horizontal: 20),
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Colors.blueAccent.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          'Remaining Usage: ${remainingUsage.toStringAsFixed(2)} hours',
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 10),
-                      Text(
-                        'Next Maintenance: ${nextMaintenance != null ? DateFormat('dd MMM yyyy').format(nextMaintenance!) : 'Not Available'}',
-                        style: const TextStyle(
-                          color: Colors.red,
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
+                        const SizedBox(height: 10),
+                        Text(
+                          'Next Maintenance: ${nextMaintenance != null ? DateFormat('dd MMM yyyy').format(nextMaintenance!) : 'Not Available'}',
+                          style: const TextStyle(
+                            color: Colors.red,
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             );
           } else {
             return const Center(child: Text('No data available'));
