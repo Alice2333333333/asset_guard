@@ -40,12 +40,44 @@ class _HomepageState extends State<Homepage> {
         ),
         backgroundColor: const Color.fromARGB(255, 144, 181, 212),
         actions: <Widget>[
-          IconButton(
-            icon: const Icon(Icons.notifications),
-            color: Colors.black,
-            tooltip: 'Notification',
-            onPressed: () {
-              Navigator.pushNamed(context, '/notification');
+          StreamBuilder<QuerySnapshot>(
+            stream: FirebaseFirestore.instance
+                .collection('notifications')
+                .where('status', isEqualTo: 'unread')
+                .snapshots(),
+            builder: (context, snapshot) {
+              bool hasUnreadNotifications = false;
+              if (snapshot.hasData && snapshot.data!.docs.isNotEmpty) {
+                hasUnreadNotifications = true;
+              }
+              return Stack(
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.notifications),
+                    color: Colors.black,
+                    tooltip: 'Notification',
+                    onPressed: () {
+                      Navigator.pushNamed(context, '/notification');
+                    },
+                  ),
+                  if (hasUnreadNotifications)
+                    Positioned(
+                      right: 11,
+                      top: 11,
+                      child: Container(
+                        padding: const EdgeInsets.all(2),
+                        decoration: BoxDecoration(
+                          color: Colors.red,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        constraints: const BoxConstraints(
+                          minWidth: 10,
+                          minHeight: 10,
+                        ),
+                      ),
+                    ),
+                ],
+              );
             },
           ),
           IconButton(
@@ -123,9 +155,8 @@ class _HomepageState extends State<Homepage> {
                           Text(
                             "Next Maintenance: ${_formatDate(maintenanceDate)}",
                             style: TextStyle(
-                              color: isConditionGood
-                                  ? Colors.green
-                                  : Colors.red,
+                              color:
+                                  isConditionGood ? Colors.green : Colors.red,
                               fontSize: 12,
                               fontWeight: FontWeight.w500,
                             ),
