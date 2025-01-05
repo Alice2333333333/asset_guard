@@ -168,6 +168,10 @@ class _HomepageState extends State<Homepage> {
                         color: conditionColor,
                       ),
                       onTap: () {
+                        final assetId = assets[index].id;
+                        final asset =
+                            assets[index].data() as Map<String, dynamic>;
+                        asset['id'] = assetId;
                         Navigator.pushNamed(context, '/asset',
                             arguments: asset);
                       },

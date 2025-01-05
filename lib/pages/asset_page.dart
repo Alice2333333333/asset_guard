@@ -96,8 +96,8 @@ class AssetPage extends StatelessWidget {
                     ),
                     const Divider(thickness: 1.2),
                     const SizedBox(height: 10),
-                    _buildStackedAssetDetailRow(
-                        Icons.vpn_key, 'Serial Number:', asset['serial_number']),
+                    _buildStackedAssetDetailRow(Icons.vpn_key, 'Serial Number:',
+                        asset['serial_number']),
                     const Divider(),
                     _buildStackedAssetDetailRow(Icons.description,
                         'Description:', asset['description']),
@@ -119,6 +119,7 @@ class AssetPage extends StatelessWidget {
             const SizedBox(height: 10),
             ElevatedButton.icon(
               onPressed: () {
+                debugPrint("Asset Data: $asset");
                 Navigator.pushNamed(context, '/usage', arguments: asset);
               },
               icon: const Icon(Icons.analytics, color: Colors.white),
