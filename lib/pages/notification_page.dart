@@ -1,25 +1,25 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:asset_guard/provider/asset_provider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:intl/intl.dart';
 
 class NotificationPage extends StatelessWidget {
   const NotificationPage({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final assetProvider = Provider.of<AssetProvider>(context, listen: false);
+
     return Scaffold(
       appBar: AppBar(
         title: const Text(
-          'Notification',
+          'Notifications',
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
         backgroundColor: const Color.fromARGB(255, 144, 181, 212),
       ),
-      body: StreamBuilder(
-        stream: FirebaseFirestore.instance
-            .collection('notifications')
-            .orderBy('date', descending: true)
-            .snapshots(),
+      body: StreamBuilder<QuerySnapshot>(
+        stream: assetProvider.fetchNotifications(),
         builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
@@ -53,9 +53,9 @@ class NotificationPage extends StatelessWidget {
                       Text(notification['body']),
                       const SizedBox(height: 4),
                       Text(
-                        "Date: ${_formatDate(notification['date'])}",
-                        style:
-                            const TextStyle(fontSize: 12, color: Colors.grey),
+                        "Date: ${assetProvider.formatNotificationDate(notification['date'])}",
+                        style: const TextStyle(
+                            fontSize: 12, color: Colors.grey),
                       ),
                     ],
                   ),
@@ -68,7 +68,7 @@ class NotificationPage extends StatelessWidget {
                         : Colors.green,
                   ),
                   onTap: () {
-                    _markAsRead(docId);
+                    assetProvider.markNotificationAsRead(docId);
                   },
                 ),
               );
@@ -77,23 +77,5 @@ class NotificationPage extends StatelessWidget {
         },
       ),
     );
-  }
-
-  /// Mark notification as read
-  Future<void> _markAsRead(String docId) async {
-    await FirebaseFirestore.instance
-        .collection('notifications')
-        .doc(docId)
-        .update({'status': 'read'});
-  }
-
-  /// Format date for display
-  String _formatDate(String date) {
-    try {
-      final parsedDate = DateTime.parse(date);
-      return DateFormat('dd MMM yyyy').format(parsedDate);
-    } catch (e) {
-      return date; // Fallback to original if parsing fails
-    }
   }
 }

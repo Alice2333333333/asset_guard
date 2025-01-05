@@ -97,7 +97,7 @@ class AssetPage extends StatelessWidget {
                     const Divider(thickness: 1.2),
                     const SizedBox(height: 10),
                     _buildStackedAssetDetailRow(
-                        Icons.vpn_key, 'Serial Number:', asset['serialNumber']),
+                        Icons.vpn_key, 'Serial Number:', asset['serial_number']),
                     const Divider(),
                     _buildStackedAssetDetailRow(Icons.description,
                         'Description:', asset['description']),

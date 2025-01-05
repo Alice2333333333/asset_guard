@@ -7,8 +7,10 @@ import 'package:intl/intl.dart';
 class AssetProvider extends ChangeNotifier {
   List<Map<String, dynamic>> _assets = [];
   List<Map<String, dynamic>> _records = [];
+  List<Map<String, dynamic>> _notifications = [];
   List<Map<String, dynamic>> get assets => _assets;
   List<Map<String, dynamic>> get records => _records;
+  List<Map<String, dynamic>> get notifications => _notifications;
 
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
@@ -21,7 +23,7 @@ class AssetProvider extends ChangeNotifier {
       return {
         'id': doc.id,
         'name': doc['name'] ?? 'Unknown Asset',
-        'serialNumber': doc['serial_number'] ?? 'N/A',
+        'serial_number': doc['serial_number'] ?? 'N/A',
         'condition': doc['condition'] ?? 'N/A',
         'description': doc['description'] ?? 'N/A',
         'price': doc['price'] ?? 'N/A',
@@ -133,6 +135,20 @@ class AssetProvider extends ChangeNotifier {
         "Maintenance is scheduled for tomorrow.",
         3,
       );
+    }
+  }
+
+  Future<void> checkAndUpdateConditionFromNotifications() async {
+    final querySnapshot = await _firestore
+        .collection('notifications')
+        .where('type', whereIn: [1, 2]).get();
+
+    for (var doc in querySnapshot.docs) {
+      final assetId = doc['assetId'];
+      await _firestore.collection('asset').doc(assetId).update({
+        'condition': false,
+      });
+      debugPrint('Condition updated to false for asset: $assetId');
     }
   }
 
@@ -279,6 +295,30 @@ class AssetProvider extends ChangeNotifier {
       debugPrint('Next maintenance date stored: $maintenanceDate');
     } catch (e) {
       debugPrint('Failed to store next maintenance date: $e');
+    }
+  }
+
+  Stream<QuerySnapshot> fetchNotifications() {
+    return _firestore
+        .collection('notifications')
+        .orderBy('date', descending: true)
+        .snapshots();
+  }
+
+  Future<void> markNotificationAsRead(String docId) async {
+    await _firestore
+        .collection('notifications')
+        .doc(docId)
+        .update({'status': 'read'});
+    notifyListeners();
+  }
+
+  String formatNotificationDate(String date) {
+    try {
+      final parsedDate = DateTime.parse(date);
+      return DateFormat('dd MMM yyyy').format(parsedDate);
+    } catch (e) {
+      return date;
     }
   }
 }

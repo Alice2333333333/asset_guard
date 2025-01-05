@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:asset_guard/provider/asset_provider.dart';
 import 'package:intl/intl.dart';
 
@@ -15,9 +16,9 @@ class _HomepageState extends State<Homepage> {
   void initState() {
     super.initState();
     final assetProvider = Provider.of<AssetProvider>(context, listen: false);
-    Provider.of<AssetProvider>(context, listen: false);
     assetProvider.fetchAssets();
     assetProvider.updateDailyUsage();
+    assetProvider.checkAndUpdateConditionFromNotifications();
   }
 
   @override
@@ -57,103 +58,94 @@ class _HomepageState extends State<Homepage> {
           ),
         ],
       ),
-      body: Consumer<AssetProvider>(
-        builder: (context, assetProvider, child) {
-          final assets = assetProvider.assets;
+      body: StreamBuilder<QuerySnapshot>(
+        stream: FirebaseFirestore.instance.collection('asset').snapshots(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
 
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Padding(
-                padding: EdgeInsets.fromLTRB(16, 12, 16, 0),
-                child: Text(
-                  'Available Power Tools',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-              Expanded(
-                child: ListView.separated(
-                  padding: const EdgeInsets.all(12.0),
-                  itemCount: assets.length,
-                  itemBuilder: (context, index) {
-                    final asset = assets[index];
-                    final bool isConditionGood = asset['condition'] ?? false;
-                    final maintenanceDate =
-                        DateTime.tryParse(asset['next_maintenance'] ?? '');
-                        
-                    final conditionColor = _getConditionColor(isConditionGood);
-                    final conditionIcon =
-                        isConditionGood ? Icons.check_circle : Icons.cancel;
+          if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+            return const Center(child: Text('No assets available.'));
+          }
 
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Card(
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8.0),
-                          ),
-                          elevation: 3,
-                          child: ListTile(
-                            leading: Container(
-                              padding: const EdgeInsets.all(8.0),
-                              decoration: BoxDecoration(
-                                color: Colors.blueAccent.withOpacity(0.1),
-                                shape: BoxShape.circle,
-                              ),
-                              child: const Icon(Icons.build,
-                                  color: Colors.blueAccent),
-                            ),
-                            title: Text(
-                              asset['name'] ?? 'Unknown Tool',
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 14,
-                              ),
-                            ),
-                            subtitle: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  "Serial Number: ${asset['serialNumber'] ?? 'N/A'}",
-                                  style: const TextStyle(
-                                    color: Colors.grey,
-                                    fontSize: 14,
-                                  ),
-                                ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  "Next Maintenance: ${_formatDate(maintenanceDate)}",
-                                  style: TextStyle(
-                                    color: isConditionGood
-                                        ? Colors.green
-                                        : Colors.red,
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            trailing: Icon(
-                              conditionIcon,
-                              color: conditionColor,
-                            ),
-                            onTap: () {
-                              Navigator.pushNamed(context, '/asset',
-                                  arguments: asset);
-                            },
-                          ),
+          final assets = snapshot.data!.docs;
+
+          return ListView.separated(
+            padding: const EdgeInsets.all(12.0),
+            itemCount: assets.length,
+            itemBuilder: (context, index) {
+              final asset = assets[index].data() as Map<String, dynamic>;
+              final bool isConditionGood = asset['condition'] ?? true;
+              final maintenanceDate =
+                  DateTime.tryParse(asset['next_maintenance'] ?? '');
+
+              final conditionColor = _getConditionColor(isConditionGood);
+              final conditionIcon =
+                  isConditionGood ? Icons.check_circle : Icons.cancel;
+
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Card(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8.0),
+                    ),
+                    elevation: 3,
+                    child: ListTile(
+                      leading: Container(
+                        padding: const EdgeInsets.all(8.0),
+                        decoration: BoxDecoration(
+                          color: Colors.blueAccent.withOpacity(0.1),
+                          shape: BoxShape.circle,
                         ),
-                      ],
-                    );
-                  },
-                  separatorBuilder: (context, index) =>
-                      const SizedBox(height: 8),
-                ),
-              ),
-            ],
+                        child:
+                            const Icon(Icons.build, color: Colors.blueAccent),
+                      ),
+                      title: Text(
+                        asset['name'] ?? 'Unknown Tool',
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14,
+                        ),
+                      ),
+                      subtitle: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "Serial Number: ${asset['serial_number'] ?? 'N/A'}",
+                            style: const TextStyle(
+                              color: Colors.grey,
+                              fontSize: 14,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            "Next Maintenance: ${_formatDate(maintenanceDate)}",
+                            style: TextStyle(
+                              color: isConditionGood
+                                  ? Colors.green
+                                  : Colors.red,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+                      trailing: Icon(
+                        conditionIcon,
+                        color: conditionColor,
+                      ),
+                      onTap: () {
+                        Navigator.pushNamed(context, '/asset',
+                            arguments: asset);
+                      },
+                    ),
+                  ),
+                ],
+              );
+            },
+            separatorBuilder: (context, index) => const SizedBox(height: 8),
           );
         },
       ),
@@ -165,28 +157,7 @@ Color _getConditionColor(bool isConditionGood) {
   return isConditionGood ? Colors.green : Colors.red;
 }
 
-  String _formatDate(DateTime? date) {
-    if (date == null) return 'Not Scheduled';
-    return DateFormat('dd MMM yyyy').format(date);
-  }
-
-  Color _getMaintenanceColor(DateTime? maintenanceDate) {
-    if (maintenanceDate == null) return Colors.grey;
-    return maintenanceDate.isBefore(DateTime.now()) ? Colors.red : Colors.green;
-  }
-
-// String _formatMaintenanceDate(String? maintenanceDate) {
-//   if (maintenanceDate == null ||
-//       maintenanceDate.isEmpty ||
-//       maintenanceDate == 'N/A') {
-//     return "Upcoming Maint.: Not Scheduled";
-//   }
-//   try {
-//     final formattedDate = DateFormat('dd MMM yyyy').format(
-//       DateTime.parse(maintenanceDate),
-//     );
-//     return "Upcoming Maint.: $formattedDate";
-//   } catch (e) {
-//     print("Date parsing error: $e for date: $maintenanceDate");
-//     return "Upcoming Maint.: Not Scheduled";
-//   }
+String _formatDate(DateTime? date) {
+  if (date == null) return 'Not Scheduled';
+  return DateFormat('dd MMM yyyy').format(date);
+}
