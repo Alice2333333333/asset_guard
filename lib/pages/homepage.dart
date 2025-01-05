@@ -14,7 +14,10 @@ class _HomepageState extends State<Homepage> {
   @override
   void initState() {
     super.initState();
-    Provider.of<AssetProvider>(context, listen: false).fetchAssets();
+    final assetProvider = Provider.of<AssetProvider>(context, listen: false);
+    Provider.of<AssetProvider>(context, listen: false);
+    assetProvider.fetchAssets();
+    assetProvider.updateDailyUsage();
   }
 
   @override
@@ -78,10 +81,12 @@ class _HomepageState extends State<Homepage> {
                   itemBuilder: (context, index) {
                     final asset = assets[index];
                     final bool isConditionGood = asset['condition'] ?? false;
+                    final maintenanceDate =
+                        DateTime.tryParse(asset['next_maintenance'] ?? '');
+                        
                     final conditionColor = _getConditionColor(isConditionGood);
                     final conditionIcon =
                         isConditionGood ? Icons.check_circle : Icons.cancel;
-                    final maintenanceDate = asset['next_maintenance'];
 
                     return Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -120,7 +125,7 @@ class _HomepageState extends State<Homepage> {
                                 ),
                                 const SizedBox(height: 4),
                                 Text(
-                                  _formatMaintenanceDate(maintenanceDate),
+                                  "Next Maintenance: ${_formatDate(maintenanceDate)}",
                                   style: TextStyle(
                                     color: isConditionGood
                                         ? Colors.green
@@ -160,19 +165,28 @@ Color _getConditionColor(bool isConditionGood) {
   return isConditionGood ? Colors.green : Colors.red;
 }
 
-String _formatMaintenanceDate(String? maintenanceDate) {
-  if (maintenanceDate == null ||
-      maintenanceDate.isEmpty ||
-      maintenanceDate == 'N/A') {
-    return "Upcoming Maint.: Not Scheduled";
+  String _formatDate(DateTime? date) {
+    if (date == null) return 'Not Scheduled';
+    return DateFormat('dd MMM yyyy').format(date);
   }
-  try {
-    final formattedDate = DateFormat('dd MMM yyyy').format(
-      DateTime.parse(maintenanceDate),
-    );
-    return "Upcoming Maint.: $formattedDate";
-  } catch (e) {
-    print("Date parsing error: $e for date: $maintenanceDate");
-    return "Upcoming Maintenance: Invalid Date";
+
+  Color _getMaintenanceColor(DateTime? maintenanceDate) {
+    if (maintenanceDate == null) return Colors.grey;
+    return maintenanceDate.isBefore(DateTime.now()) ? Colors.red : Colors.green;
   }
-}
+
+// String _formatMaintenanceDate(String? maintenanceDate) {
+//   if (maintenanceDate == null ||
+//       maintenanceDate.isEmpty ||
+//       maintenanceDate == 'N/A') {
+//     return "Upcoming Maint.: Not Scheduled";
+//   }
+//   try {
+//     final formattedDate = DateFormat('dd MMM yyyy').format(
+//       DateTime.parse(maintenanceDate),
+//     );
+//     return "Upcoming Maint.: $formattedDate";
+//   } catch (e) {
+//     print("Date parsing error: $e for date: $maintenanceDate");
+//     return "Upcoming Maint.: Not Scheduled";
+//   }

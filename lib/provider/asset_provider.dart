@@ -74,6 +74,109 @@ class AssetProvider extends ChangeNotifier {
             }).toList());
   }
 
+  Future<void> updateDailyUsage() async {
+    final String today = DateFormat('yyyy-MM-dd').format(DateTime.now());
+    final QuerySnapshot assetSnapshot =
+        await _firestore.collection('asset').get();
+
+    for (var doc in assetSnapshot.docs) {
+      final asset = doc.data() as Map<String, dynamic>;
+      final assetId = doc.id;
+
+      final usageDoc = await _firestore
+          .collection('asset')
+          .doc(assetId)
+          .collection('usage_data')
+          .doc(today)
+          .get();
+
+      num dailyUsage = usageDoc.exists ? (usageDoc['usage_hours'] ?? 0) : 0;
+      DateTime? maintenanceDate = DateTime.tryParse(asset['next_maintenance']);
+
+      checkNotifications(asset, maintenanceDate, dailyUsage, assetId);
+
+      await _firestore.collection('asset').doc(assetId).set({
+        'daily_usage': dailyUsage,
+      }, SetOptions(merge: true));
+    }
+
+    notifyListeners();
+  }
+
+  void checkNotifications(Map<String, dynamic> asset, DateTime? maintenanceDate,
+      num dailyUsage, String assetId) {
+    if (dailyUsage >= 20) {
+      _storeNotificationIfNotExists(
+        assetId,
+        asset['name'],
+        "Critical Limit",
+        "Daily usage exceeded 20 hours.",
+        1,
+      );
+    }
+
+    if (maintenanceDate != null && _isTodayOrBefore(maintenanceDate)) {
+      _storeNotificationIfNotExists(
+        assetId,
+        asset['name'],
+        "Maintenance Due",
+        "Maintenance is scheduled for today or overdue.",
+        2,
+      );
+    }
+
+    if (maintenanceDate != null && _isTomorrow(maintenanceDate)) {
+      _storeNotificationIfNotExists(
+        assetId,
+        asset['name'],
+        "Upcoming Maintenance",
+        "Maintenance is scheduled for tomorrow.",
+        3,
+      );
+    }
+  }
+
+  Future<void> _storeNotificationIfNotExists(
+      String assetId, String name, String title, String body, int type) async {
+    final now = DateTime.now();
+    final formattedDate = DateFormat('yyyy-MM-dd').format(now);
+
+    final QuerySnapshot existingNotification = await _firestore
+        .collection('notifications')
+        .where('assetId', isEqualTo: assetId)
+        .where('date', isEqualTo: formattedDate)
+        .where('type', isEqualTo: type)
+        .get();
+
+    if (existingNotification.docs.isEmpty) {
+      await _firestore.collection('notifications').add({
+        'title': title,
+        'body': "Tool: $name - $body",
+        'date': formattedDate,
+        'assetId': assetId,
+        'status': 'unread',
+        'type': type,
+      });
+      debugPrint("Notification (Type $type) stored for Asset: $assetId");
+    } else {
+      debugPrint(
+          "Notification already exists for Asset: $assetId (Type $type)");
+    }
+  }
+
+  bool _isTodayOrBefore(DateTime date) {
+    final now = DateTime.now();
+    return date.isBefore(now) ||
+        DateFormat('yyyy-MM-dd').format(date) ==
+            DateFormat('yyyy-MM-dd').format(now);
+  }
+
+  bool _isTomorrow(DateTime date) {
+    final tomorrow = DateTime.now().add(const Duration(days: 1));
+    return DateFormat('yyyy-MM-dd').format(date) ==
+        DateFormat('yyyy-MM-dd').format(tomorrow);
+  }
+
   Future<void> sendAssetIdToFlask(String assetId) async {
     final url = Uri.parse('http://192.168.100.10:5000/send-assetid');
 
