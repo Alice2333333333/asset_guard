@@ -172,6 +172,7 @@ class AssetProvider extends ChangeNotifier {
         'assetId': assetId,
         'status': 'unread',
         'type': type,
+        'repairRequested': false,
       });
       debugPrint("Notification (Type $type) stored for Asset: $assetId");
     } else {

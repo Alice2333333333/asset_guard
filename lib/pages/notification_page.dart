@@ -38,6 +38,8 @@ class NotificationPage extends StatelessWidget {
               final notification =
                   notifications[index].data() as Map<String, dynamic>;
               final docId = notifications[index].id;
+              final bool repairRequested =
+                  notification['repairRequested'] ?? false;
 
               return Padding(
                 padding: const EdgeInsets.fromLTRB(0, 5, 0, 3),
@@ -64,6 +66,7 @@ class NotificationPage extends StatelessWidget {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [
+                            if (!repairRequested)
                             ElevatedButton.icon(
                               icon: const Icon(
                                 Icons.build,
@@ -75,7 +78,7 @@ class NotificationPage extends StatelessWidget {
                                 style: TextStyle(color: Colors.white),
                               ),
                               onPressed: () {
-                                _sendRepairEmail(notification);
+                                _sendRepairEmail(context, notification, docId);
                               },
                               style: ElevatedButton.styleFrom(
                                 backgroundColor:
@@ -113,28 +116,77 @@ class NotificationPage extends StatelessWidget {
       ),
     );
   }
-}
 
-void _sendRepairEmail(Map<String, dynamic> notification) async {
-  const String email = 'alau26275@gmail.com';
-  final String subject =
-      Uri.encodeComponent('Repair Request: ${notification['title']}');
-  final String body = Uri.encodeComponent(
-    'Hello,\n\nI am requesting repair service for the following asset:\n\n'
-    'Asset: ${notification['title']}\n'
-    '${notification['body']}\n\n'
-    'Please take the necessary action.\n\nThank you.',
-  );
+  void _sendRepairEmail(BuildContext context, Map<String, dynamic> notification,
+      String docId) async {
+    const String email = 'alau26275@gmail.com';
+    final String subject =
+        Uri.encodeComponent('Repair Request: ${notification['title']}');
+    final String body = Uri.encodeComponent(
+      'Hello,\n\nI am requesting repair service for the following asset:\n\n'
+      'Asset: ${notification['title']}\n'
+      '${notification['body']}\n\n'
+      'Please take the necessary action.\n\nThank you.',
+    );
 
-  final Uri mailUri = Uri(
-    scheme: 'mailto',
-    path: 'alau26275@gmail.com',
-    query: 'subject=$subject&body=$body',
-  );
+    final Uri mailUri = Uri(
+      scheme: 'mailto',
+      path: email,
+      query: 'subject=$subject&body=$body',
+    );
 
-  if (await canLaunchUrl(mailUri)) {
-    await launchUrl(mailUri);
-  } else {
-    throw 'Could not launch email client';
+    if (await canLaunchUrl(mailUri)) {
+      await launchUrl(mailUri);
+
+      _showEmailConfirmationDialog(context, notification, docId);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Could not launch email client'),
+        ),
+      );
+    }
+  }
+
+  void _showEmailConfirmationDialog(
+      BuildContext context, Map<String, dynamic> notification, String docId) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Email Confirmation'),
+          content: const Text('Did you send the repair request email?'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child:
+                  const Text('Cancel', style: TextStyle(color: Colors.black)),
+            ),
+            TextButton(
+              onPressed: () {
+                _markRepairRequested(docId);
+                Navigator.of(context).pop();
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Repair request marked.'),
+                  ),
+                );
+              },
+              child: const Text('Yes, I Sent',
+                  style: TextStyle(color: Colors.red)),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> _markRepairRequested(String docId) async {
+    await FirebaseFirestore.instance
+        .collection('notifications')
+        .doc(docId)
+        .update({'repairRequested': true});
   }
 }
