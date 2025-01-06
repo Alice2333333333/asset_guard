@@ -14,21 +14,31 @@ class NotificationProvider extends ChangeNotifier {
       final asset = doc.data() as Map<String, dynamic>;
       final assetId = doc.id;
 
-      final usageDoc = await _firestore
-          .collection('asset')
-          .doc(assetId)
-          .collection('usage_data')
-          .doc(today)
-          .get();
+      if (asset['condition'] == 'In Repair') {
+        debugPrint('Skipping asset $assetId as it is in repair.');
+        continue;
+      }
 
-      num dailyUsage = usageDoc.exists ? (usageDoc['usage_hours'] ?? 0) : 0;
-      DateTime? maintenanceDate = DateTime.tryParse(asset['next_maintenance']);
+      try {
+        final usageDoc = await _firestore
+            .collection('asset')
+            .doc(assetId)
+            .collection('usage_data')
+            .doc(today)
+            .get();
 
-      checkNotifications(asset, maintenanceDate, dailyUsage, assetId);
+        num dailyUsage = usageDoc.exists ? (usageDoc['usage_hours'] ?? 0) : 0;
+        DateTime? maintenanceDate =
+            DateTime.tryParse(asset['next_maintenance'] ?? '');
 
-      await _firestore.collection('asset').doc(assetId).set({
-        'daily_usage': dailyUsage,
-      }, SetOptions(merge: true));
+        checkNotifications(asset, maintenanceDate, dailyUsage, assetId);
+
+        await _firestore.collection('asset').doc(assetId).set({
+          'daily_usage': dailyUsage,
+        }, SetOptions(merge: true));
+      } catch (e) {
+        debugPrint('Error updating daily usage for asset $assetId: $e');
+      }
     }
 
     notifyListeners();
@@ -67,18 +77,38 @@ class NotificationProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> checkAndUpdateConditionFromNotifications() async {
-    final querySnapshot = await _firestore
+  void checkAndUpdateConditionFromNotifications() {
+    _firestore
         .collection('notifications')
-        .where('type', whereIn: [1, 2]).get();
+        .where('type', whereIn: [1, 2]) // Types that trigger condition updates
+        .where('status', isEqualTo: 'unread')
+        .snapshots()
+        .listen((querySnapshot) async {
+          for (var doc in querySnapshot.docs) {
+            final assetId = doc['assetId'];
+            final assetDoc =
+                await _firestore.collection('asset').doc(assetId).get();
 
-    for (var doc in querySnapshot.docs) {
-      final assetId = doc['assetId'];
-      await _firestore.collection('asset').doc(assetId).update({
-        'condition': 'Needs Repair',
-      });
-      debugPrint('Condition updated to false for asset: $assetId');
-    }
+            if (assetDoc.exists) {
+              final assetData = assetDoc.data() as Map<String, dynamic>;
+              if (assetData['condition'] != 'Needs Repair') {
+                debugPrint('Current Condition: ${assetData['condition']}');
+
+                await _firestore.collection('asset').doc(assetId).update({
+                  'condition': 'Needs Repair',
+                });
+
+                debugPrint(
+                    'Condition updated to "Needs Repair" for asset: $assetId');
+              } else {
+                debugPrint(
+                    'Asset $assetId is already marked as "Needs Repair".');
+              }
+            }
+          }
+        }, onError: (e) {
+          debugPrint('Error updating asset conditions from notifications: $e');
+        });
   }
 
   Future<void> _storeNotificationIfNotExists(
@@ -86,27 +116,31 @@ class NotificationProvider extends ChangeNotifier {
     final now = DateTime.now();
     final formattedDate = DateFormat('yyyy-MM-dd').format(now);
 
-    final QuerySnapshot existingNotification = await _firestore
-        .collection('notifications')
-        .where('assetId', isEqualTo: assetId)
-        .where('date', isEqualTo: formattedDate)
-        .where('type', isEqualTo: type)
-        .get();
+    try {
+      final QuerySnapshot existingNotification = await _firestore
+          .collection('notifications')
+          .where('assetId', isEqualTo: assetId)
+          .where('date', isEqualTo: formattedDate)
+          .where('type', isEqualTo: type)
+          .get();
 
-    if (existingNotification.docs.isEmpty) {
-      await _firestore.collection('notifications').add({
-        'title': title,
-        'body': "Tool: $name - $body",
-        'date': formattedDate,
-        'assetId': assetId,
-        'status': 'unread',
-        'type': type,
-        'repairRequested': false,
-      });
-      debugPrint("Notification (Type $type) stored for Asset: $assetId");
-    } else {
-      debugPrint(
-          "Notification already exists for Asset: $assetId (Type $type)");
+      if (existingNotification.docs.isEmpty) {
+        await _firestore.collection('notifications').add({
+          'title': title,
+          'body': "Tool: $name - $body",
+          'date': formattedDate,
+          'assetId': assetId,
+          'status': 'unread',
+          'type': type,
+          'repairRequested': false,
+        });
+        debugPrint("Notification (Type $type) stored for Asset: $assetId");
+      } else {
+        debugPrint(
+            "Notification already exists for Asset: $assetId (Type $type)");
+      }
+    } catch (e) {
+      debugPrint('Failed to store notification for $assetId: $e');
     }
   }
 
@@ -118,11 +152,15 @@ class NotificationProvider extends ChangeNotifier {
   }
 
   Future<void> markNotificationAsRead(String docId) async {
-    await _firestore
-        .collection('notifications')
-        .doc(docId)
-        .update({'status': 'read'});
-    notifyListeners();
+    try {
+      await _firestore
+          .collection('notifications')
+          .doc(docId)
+          .update({'status': 'read'});
+      notifyListeners();
+    } catch (e) {
+      debugPrint('Failed to mark notification as read: $e');
+    }
   }
 
   bool _isTodayOrBefore(DateTime date) {
