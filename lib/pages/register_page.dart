@@ -1,8 +1,8 @@
-import 'dart:developer';
 
+import 'package:asset_guard/provider/auth_provider.dart';
+import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:email_validator/email_validator.dart';
-import 'package:asset_guard/provider/auth_provider.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});

@@ -1,7 +1,8 @@
+import 'package:asset_guard/provider/asset_provider.dart';
+import 'package:asset_guard/provider/notification_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:asset_guard/provider/asset_provider.dart';
 import 'package:intl/intl.dart';
 
 class Homepage extends StatefulWidget {
@@ -16,9 +17,11 @@ class _HomepageState extends State<Homepage> {
   void initState() {
     super.initState();
     final assetProvider = Provider.of<AssetProvider>(context, listen: false);
+    final notificationProvider = Provider.of<NotificationProvider>(context, listen: false);
+
     assetProvider.fetchAssets();
-    assetProvider.updateDailyUsage();
-    assetProvider.checkAndUpdateConditionFromNotifications();
+    notificationProvider.updateDailyUsage();
+    notificationProvider.checkAndUpdateConditionFromNotifications();
   }
 
   @override

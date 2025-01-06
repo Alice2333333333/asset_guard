@@ -1,6 +1,8 @@
+import 'package:asset_guard/provider/maintenance_provider.dart';
+import 'package:asset_guard/provider/usage_provider.dart';
+import 'package:asset_guard/provider/asset_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
-import 'package:asset_guard/provider/asset_provider.dart';
 import 'package:intl/intl.dart';
 
 class Usage extends StatefulWidget {
@@ -18,6 +20,8 @@ class _UsageState extends State<Usage> {
   List<Map<String, dynamic>> processedData = [];
   DateTime? nextMaintenance;
   final AssetProvider assetProvider = AssetProvider();
+  final UsageProvider usageProvider = UsageProvider();
+  final MaintenanceProvider maintenanceProvider = MaintenanceProvider();
 
   @override
   void didChangeDependencies() {
@@ -44,7 +48,7 @@ class _UsageState extends State<Usage> {
         backgroundColor: const Color.fromARGB(255, 144, 181, 212),
       ),
       body: StreamBuilder<List<Map<String, dynamic>>>(
-        stream: assetProvider.fetchMonitorData(_assetId),
+        stream: usageProvider.fetchMonitorData(_assetId),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
@@ -61,15 +65,15 @@ class _UsageState extends State<Usage> {
             if (data.isNotEmpty) {
               final firstDate = data.first['date'] ?? '';
               monthYearLabel = _extractMonthYear(firstDate);
-              totalUsage = assetProvider.calculateTotalUsage(data);
+              totalUsage = usageProvider.calculateTotalUsage(data);
               remainingUsage =
-                  assetProvider.calculateRemainingUsage(totalUsage);
+                  usageProvider.calculateRemainingUsage(totalUsage);
 
-              assetProvider.storeTotalUsage(_assetId, totalUsage);
-              assetProvider.storeRemainingUsage(_assetId, remainingUsage);
-              nextMaintenance = assetProvider.calculateNextMaintenance(
+              usageProvider.storeTotalUsage(_assetId, totalUsage);
+              usageProvider.storeRemainingUsage(_assetId, remainingUsage);
+              nextMaintenance = maintenanceProvider.calculateNextMaintenance(
                   remainingUsage, firstDate);
-              assetProvider.storeNextMaintenance(_assetId, nextMaintenance);
+              maintenanceProvider.storeNextMaintenance(_assetId, nextMaintenance);
             }
 
             final barGroups = processedData.asMap().entries.map((entry) {

@@ -1,6 +1,6 @@
+import 'package:asset_guard/provider/maintenance_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:asset_guard/provider/asset_provider.dart';
 import 'package:intl/intl.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -15,7 +15,7 @@ class MaintenanceRecord extends StatelessWidget {
     final String assetId = asset['id'];
 
     return FutureBuilder(
-        future: Provider.of<AssetProvider>(context, listen: false)
+        future: Provider.of<MaintenanceProvider>(context, listen: false)
             .fetchMaintenanceRecords(assetId),
         builder: (context, snapshot) {
           return Scaffold(
@@ -26,9 +26,9 @@ class MaintenanceRecord extends StatelessWidget {
               ),
               backgroundColor: const Color.fromARGB(255, 144, 181, 212),
             ),
-            body: Consumer<AssetProvider>(
-              builder: (context, assetProvider, child) {
-                final records = assetProvider.records;
+            body: Consumer<MaintenanceProvider>(
+              builder: (context, maintenanceProvider, child) {
+                final records = maintenanceProvider.records;
 
                 if (records.isEmpty) {
                   return const Center(

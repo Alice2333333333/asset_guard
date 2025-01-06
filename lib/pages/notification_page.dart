@@ -1,15 +1,18 @@
+import 'package:asset_guard/provider/maintenance_provider.dart';
+import 'package:asset_guard/provider/notification_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:asset_guard/provider/asset_provider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:asset_guard/provider/repair_provider.dart';
 
 class NotificationPage extends StatelessWidget {
   const NotificationPage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final assetProvider = Provider.of<AssetProvider>(context, listen: false);
+    final notificationProvider =
+        Provider.of<NotificationProvider>(context, listen: false);
+    final maintenanceProvider =
+        Provider.of<MaintenanceProvider>(context, listen: false);
 
     return Scaffold(
       appBar: AppBar(
@@ -20,7 +23,7 @@ class NotificationPage extends StatelessWidget {
         backgroundColor: const Color.fromARGB(255, 144, 181, 212),
       ),
       body: StreamBuilder<QuerySnapshot>(
-        stream: assetProvider.fetchNotifications(),
+        stream: notificationProvider.fetchNotifications(),
         builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
@@ -58,8 +61,9 @@ class NotificationPage extends StatelessWidget {
                         Text(notification['body']),
                         const SizedBox(height: 4),
                         Text(
-                          "Date: ${assetProvider.formatNotificationDate(notification['date'])}",
-                          style: const TextStyle(fontSize: 12, color: Colors.grey),
+                          "Date: ${notificationProvider.formatNotificationDate(notification['date'])}",
+                          style:
+                              const TextStyle(fontSize: 12, color: Colors.grey),
                         ),
                         const SizedBox(height: 8),
                         Row(
@@ -77,7 +81,7 @@ class NotificationPage extends StatelessWidget {
                                   style: TextStyle(color: Colors.white),
                                 ),
                                 onPressed: () {
-                                  RepairService.sendRepairEmail(
+                                  maintenanceProvider.sendRepairEmail(
                                       context, notification, docId);
                                 },
                                 style: ElevatedButton.styleFrom(
@@ -88,7 +92,8 @@ class NotificationPage extends StatelessWidget {
                             const SizedBox(width: 12),
                             ElevatedButton(
                               onPressed: () {
-                                assetProvider.markNotificationAsRead(docId);
+                                notificationProvider
+                                    .markNotificationAsRead(docId);
                               },
                               child: const Text(
                                 'Mark as Read',

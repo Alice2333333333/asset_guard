@@ -8,11 +8,13 @@ import 'package:asset_guard/pages/register_page.dart';
 import 'package:asset_guard/pages/usage.dart';
 import 'package:asset_guard/provider/auth_provider.dart';
 import 'package:asset_guard/provider/asset_provider.dart';
+import 'package:asset_guard/provider/maintenance_provider.dart';
+import 'package:asset_guard/provider/usage_provider.dart';
+import 'package:asset_guard/provider/notification_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import 'package:firebase_core/firebase_core.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:provider/provider.dart';
 import 'firebase_options.dart';
 
@@ -30,6 +32,9 @@ Future<void> main() async {
       providers: [
         ChangeNotifierProvider(create: (_) => AuthProvider()),
         ChangeNotifierProvider(create: (_) => AssetProvider()),
+        ChangeNotifierProvider(create: (context) => UsageProvider()),
+        ChangeNotifierProvider(create: (context) => NotificationProvider()),
+        ChangeNotifierProvider(create: (context) => MaintenanceProvider()),
       ],
       child: const MyApp(),
     ),
@@ -57,4 +62,3 @@ class MyApp extends StatelessWidget {
     );
   }
 }
-  
