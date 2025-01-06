@@ -1,5 +1,6 @@
 import 'package:asset_guard/provider/asset_provider.dart';
 import 'package:asset_guard/provider/notification_provider.dart';
+import 'package:asset_guard/provider/auth_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -17,15 +18,21 @@ class _HomepageState extends State<Homepage> {
   void initState() {
     super.initState();
     final assetProvider = Provider.of<AssetProvider>(context, listen: false);
-    final notificationProvider = Provider.of<NotificationProvider>(context, listen: false);
+    final notificationProvider =
+        Provider.of<NotificationProvider>(context, listen: false);
 
     assetProvider.fetchAssets();
     notificationProvider.updateDailyUsage();
     notificationProvider.checkAndUpdateConditionFromNotifications();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      authProvider.getUserDetailsFromPreferences();
+    });
   }
 
   @override
   Widget build(BuildContext context) {
+    final authProvider = Provider.of<AuthProvider>(context);
     return Scaffold(
       appBar: AppBar(
         title: Row(
@@ -43,46 +50,47 @@ class _HomepageState extends State<Homepage> {
         ),
         backgroundColor: const Color.fromARGB(255, 144, 181, 212),
         actions: <Widget>[
-          StreamBuilder<QuerySnapshot>(
-            stream: FirebaseFirestore.instance
-                .collection('notifications')
-                .where('status', isEqualTo: 'unread')
-                .snapshots(),
-            builder: (context, snapshot) {
-              bool hasUnreadNotifications = false;
-              if (snapshot.hasData && snapshot.data!.docs.isNotEmpty) {
-                hasUnreadNotifications = true;
-              }
-              return Stack(
-                children: [
-                  IconButton(
-                    icon: const Icon(Icons.notifications),
-                    color: Colors.black,
-                    tooltip: 'Notification',
-                    onPressed: () {
-                      Navigator.pushNamed(context, '/notification');
-                    },
-                  ),
-                  if (hasUnreadNotifications)
-                    Positioned(
-                      right: 11,
-                      top: 11,
-                      child: Container(
-                        padding: const EdgeInsets.all(2),
-                        decoration: BoxDecoration(
-                          color: Colors.red,
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        constraints: const BoxConstraints(
-                          minWidth: 10,
-                          minHeight: 10,
+          if (authProvider.userRole != 'Site Manager')
+            StreamBuilder<QuerySnapshot>(
+              stream: FirebaseFirestore.instance
+                  .collection('notifications')
+                  .where('status', isEqualTo: 'unread')
+                  .snapshots(),
+              builder: (context, snapshot) {
+                bool hasUnreadNotifications = false;
+                if (snapshot.hasData && snapshot.data!.docs.isNotEmpty) {
+                  hasUnreadNotifications = true;
+                }
+                return Stack(
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.notifications),
+                      color: Colors.black,
+                      tooltip: 'Notification',
+                      onPressed: () {
+                        Navigator.pushNamed(context, '/notification');
+                      },
+                    ),
+                    if (hasUnreadNotifications)
+                      Positioned(
+                        right: 11,
+                        top: 11,
+                        child: Container(
+                          padding: const EdgeInsets.all(2),
+                          decoration: BoxDecoration(
+                            color: Colors.red,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          constraints: const BoxConstraints(
+                            minWidth: 10,
+                            minHeight: 10,
+                          ),
                         ),
                       ),
-                    ),
-                ],
-              );
-            },
-          ),
+                  ],
+                );
+              },
+            ),
           IconButton(
             icon: const Icon(Icons.account_circle_rounded),
             color: Colors.black,
@@ -154,14 +162,15 @@ class _HomepageState extends State<Homepage> {
                             ),
                           ),
                           const SizedBox(height: 4),
-                          Text(
-                            "Next Maintenance: ${_formatDate(maintenanceDate)}",
-                            style: TextStyle(
-                              color: conditionColor,
-                              fontSize: 12,
-                              fontWeight: FontWeight.w500,
+                          if (authProvider.userRole != 'Site Manager')
+                            Text(
+                              "Next Maintenance: ${_formatDate(maintenanceDate)}",
+                              style: TextStyle(
+                                color: conditionColor,
+                                fontSize: 12,
+                                fontWeight: FontWeight.w500,
+                              ),
                             ),
-                          ),
                         ],
                       ),
                       trailing: _getConditionIcon(condition),

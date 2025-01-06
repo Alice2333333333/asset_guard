@@ -1,4 +1,5 @@
 import 'package:asset_guard/provider/asset_provider.dart';
+import 'package:asset_guard/provider/auth_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -9,7 +10,12 @@ class AssetPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final Map<String, dynamic> asset =
         ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      authProvider.getUserDetailsFromPreferences();
+    });
     final assetProvider = Provider.of<AssetProvider>(context, listen: false);
+    final authProvider = Provider.of<AuthProvider>(context);
 
     String condition = asset['condition'];
     final conditionColor = assetProvider.getConditionColor(condition);
@@ -110,11 +116,13 @@ class AssetPage extends StatelessWidget {
                     const Divider(),
                     _buildStackedAssetDetailRow(
                         Icons.attach_money, 'Price:', 'RM ${asset['price']}'),
-                    const Divider(),
-                    _buildStackedAssetDetailRow(
-                        Icons.calendar_today,
-                        'Next Maintenance:',
-                        asset['next_maintenance'] ?? 'Not Scheduled'),
+                    if (authProvider.userRole != 'Site Manager')
+                      const Divider(),
+                    if (authProvider.userRole != 'Site Manager')
+                      _buildStackedAssetDetailRow(
+                          Icons.calendar_today,
+                          'Next Maintenance:',
+                          asset['next_maintenance'] ?? 'Not Scheduled'),
                   ],
                 ),
               ),
@@ -142,28 +150,30 @@ class AssetPage extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 10),
-            ElevatedButton.icon(
-              onPressed: () {
-                Navigator.pushNamed(context, '/maintenance', arguments: asset);
-              },
-              icon: const Icon(
-                Icons.build,
-                color: Color.fromARGB(255, 25, 58, 94),
-              ),
-              label: const Text(
-                'Maintenance Records',
-                style: TextStyle(
-                  fontSize: 15,
+            if (authProvider.userRole != 'Site Manager')
+              ElevatedButton.icon(
+                onPressed: () {
+                  Navigator.pushNamed(context, '/maintenance',
+                      arguments: asset);
+                },
+                icon: const Icon(
+                  Icons.build,
                   color: Color.fromARGB(255, 25, 58, 94),
-                  fontWeight: FontWeight.bold,
+                ),
+                label: const Text(
+                  'Maintenance Records',
+                  style: TextStyle(
+                    fontSize: 15,
+                    color: Color.fromARGB(255, 25, 58, 94),
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 8),
+                  elevation: 3,
+                  shadowColor: Colors.black.withOpacity(1),
                 ),
               ),
-              style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(vertical: 8),
-                elevation: 3,
-                shadowColor: Colors.black.withOpacity(1),
-              ),
-            ),
           ],
         ),
       ),

@@ -1,7 +1,9 @@
 import 'package:asset_guard/provider/maintenance_provider.dart';
 import 'package:asset_guard/provider/usage_provider.dart';
 import 'package:asset_guard/provider/asset_provider.dart';
+import 'package:asset_guard/provider/auth_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:intl/intl.dart';
 
@@ -30,6 +32,11 @@ class _UsageState extends State<Usage> {
     final Map<String, dynamic>? arguments =
         ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
 
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      authProvider.getUserDetailsFromPreferences();
+    });
+
     _assetId = arguments?['id'] ?? '';
 
     if (_assetId.isNotEmpty) {
@@ -39,6 +46,7 @@ class _UsageState extends State<Usage> {
 
   @override
   Widget build(BuildContext context) {
+  final authProvider = Provider.of<AuthProvider>(context, listen: false);
     return Scaffold(
       appBar: AppBar(
         title: const Text(
@@ -73,7 +81,8 @@ class _UsageState extends State<Usage> {
               usageProvider.storeRemainingUsage(_assetId, remainingUsage);
               nextMaintenance = maintenanceProvider.calculateNextMaintenance(
                   remainingUsage, firstDate);
-              maintenanceProvider.storeNextMaintenance(_assetId, nextMaintenance);
+              maintenanceProvider.storeNextMaintenance(
+                  _assetId, nextMaintenance);
             }
 
             final barGroups = processedData.asMap().entries.map((entry) {
@@ -242,14 +251,15 @@ class _UsageState extends State<Usage> {
                           ),
                         ),
                         const SizedBox(height: 10),
-                        Text(
-                          'Next Maintenance: ${nextMaintenance != null ? DateFormat('dd MMM yyyy').format(nextMaintenance!) : 'Not Available'}',
-                          style: const TextStyle(
-                            color: Colors.red,
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
+                        if (authProvider.userRole != 'Site Manager')
+                          Text(
+                            'Next Maintenance: ${nextMaintenance != null ? DateFormat('dd MMM yyyy').format(nextMaintenance!) : 'Not Available'}',
+                            style: const TextStyle(
+                              color: Colors.red,
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
-                        ),
                       ],
                     ),
                   ),
@@ -268,7 +278,7 @@ class _UsageState extends State<Usage> {
     final today = DateTime.now();
     final List<DateTime> last7Days = List.generate(
       7,
-      (index) => today.subtract(Duration(days: 6 - index)), // Ascending order
+      (index) => today.subtract(Duration(days: 6 - index)),
     );
 
     processedData = last7Days.map((date) {

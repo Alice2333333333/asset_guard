@@ -5,11 +5,7 @@ import 'dart:convert';
 
 class AssetProvider extends ChangeNotifier {
   List<Map<String, dynamic>> _assets = [];
-  List<Map<String, dynamic>> _records = [];
-  List<Map<String, dynamic>> _notifications = [];
   List<Map<String, dynamic>> get assets => _assets;
-  List<Map<String, dynamic>> get records => _records;
-  List<Map<String, dynamic>> get notifications => _notifications;
 
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
