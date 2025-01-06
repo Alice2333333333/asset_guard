@@ -108,13 +108,12 @@ class _HomepageState extends State<Homepage> {
             itemCount: assets.length,
             itemBuilder: (context, index) {
               final asset = assets[index].data() as Map<String, dynamic>;
-              final bool isConditionGood = asset['condition'] ?? true;
+              final condition = asset['condition'];
               final maintenanceDate =
                   DateTime.tryParse(asset['next_maintenance'] ?? '');
-
-              final conditionColor = _getConditionColor(isConditionGood);
-              final conditionIcon =
-                  isConditionGood ? Icons.check_circle : Icons.cancel;
+              final conditionColor =
+                  Provider.of<AssetProvider>(context, listen: false)
+                      .getConditionColor(condition);
 
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -155,18 +154,14 @@ class _HomepageState extends State<Homepage> {
                           Text(
                             "Next Maintenance: ${_formatDate(maintenanceDate)}",
                             style: TextStyle(
-                              color:
-                                  isConditionGood ? Colors.green : Colors.red,
+                              color: conditionColor,
                               fontSize: 12,
                               fontWeight: FontWeight.w500,
                             ),
                           ),
                         ],
                       ),
-                      trailing: Icon(
-                        conditionIcon,
-                        color: conditionColor,
-                      ),
+                      trailing: _getConditionIcon(condition),
                       onTap: () {
                         final assetId = assets[index].id;
                         final asset =
@@ -188,8 +183,17 @@ class _HomepageState extends State<Homepage> {
   }
 }
 
-Color _getConditionColor(bool isConditionGood) {
-  return isConditionGood ? Colors.green : Colors.red;
+Icon _getConditionIcon(String condition) {
+  switch (condition) {
+    case 'Good':
+      return const Icon(Icons.check_circle, color: Colors.green);
+    case 'Needs Repair':
+      return const Icon(Icons.cancel, color: Colors.red);
+    case 'In Repair':
+      return const Icon(Icons.build, color: Colors.blueAccent);
+    default:
+      return const Icon(Icons.help_outline, color: Colors.grey);
+  }
 }
 
 String _formatDate(DateTime? date) {

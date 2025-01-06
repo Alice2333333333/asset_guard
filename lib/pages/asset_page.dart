@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:asset_guard/provider/asset_provider.dart';
 
 class AssetPage extends StatelessWidget {
   const AssetPage({super.key});
@@ -7,9 +9,10 @@ class AssetPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final Map<String, dynamic> asset =
         ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>;
+    final assetProvider = Provider.of<AssetProvider>(context, listen: false);
 
-    String condition = asset['condition'] ? 'Good' : 'Bad';
-    Color conditionColor = asset['condition'] ? Colors.green : Colors.red;
+    String condition = asset['condition'];
+    final conditionColor = assetProvider.getConditionColor(condition);
 
     return Scaffold(
       appBar: AppBar(

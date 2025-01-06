@@ -146,7 +146,7 @@ class AssetProvider extends ChangeNotifier {
     for (var doc in querySnapshot.docs) {
       final assetId = doc['assetId'];
       await _firestore.collection('asset').doc(assetId).update({
-        'condition': false,
+        'condition': 'Needs Repair',
       });
       debugPrint('Condition updated to false for asset: $assetId');
     }
@@ -320,6 +320,16 @@ class AssetProvider extends ChangeNotifier {
       return DateFormat('dd MMM yyyy').format(parsedDate);
     } catch (e) {
       return date;
+    }
+  }
+
+  Color getConditionColor(String condition) {
+    if (condition == 'Good') {
+      return Colors.green;
+    } else if (condition == 'Needs Repair') {
+      return Colors.red;
+    } else {
+      return Colors.blueAccent;
     }
   }
 }
