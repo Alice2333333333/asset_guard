@@ -114,80 +114,102 @@ class _HomepageState extends State<Homepage> {
 
           final assets = snapshot.data!.docs;
 
-          return ListView.separated(
-            padding: const EdgeInsets.all(12.0),
-            itemCount: assets.length,
-            itemBuilder: (context, index) {
-              final asset = assets[index].data() as Map<String, dynamic>;
-              final condition = asset['condition'];
-              final maintenanceDate =
-                  DateTime.tryParse(asset['next_maintenance'] ?? '');
-              final conditionColor =
-                  Provider.of<AssetProvider>(context, listen: false)
-                      .getConditionColor(condition);
-
-              return Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Card(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8.0),
-                    ),
-                    elevation: 3,
-                    child: ListTile(
-                      leading: Container(
-                        padding: const EdgeInsets.all(8.0),
-                        decoration: BoxDecoration(
-                          color: Colors.blueAccent.withOpacity(0.1),
-                          shape: BoxShape.circle,
-                        ),
-                        child:
-                            const Icon(Icons.build, color: Colors.blueAccent),
-                      ),
-                      title: Text(
-                        asset['name'] ?? 'Unknown Tool',
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 14,
-                        ),
-                      ),
-                      subtitle: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            "Serial Number: ${asset['serial_number'] ?? 'N/A'}",
-                            style: const TextStyle(
-                              color: Colors.grey,
-                              fontSize: 14,
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          if (authProvider.userRole != 'Site Manager')
-                            Text(
-                              "Next Maintenance: ${_formatDate(maintenanceDate)}",
-                              style: TextStyle(
-                                color: conditionColor,
-                                fontSize: 12,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                        ],
-                      ),
-                      trailing: _getConditionIcon(condition),
-                      onTap: () {
-                        final assetId = assets[index].id;
-                        final asset =
-                            assets[index].data() as Map<String, dynamic>;
-                        asset['id'] = assetId;
-                        Navigator.pushNamed(context, '/asset',
-                            arguments: asset);
-                      },
+          return Padding(
+            padding: const EdgeInsets.all(2.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Padding(
+                  padding: EdgeInsets.fromLTRB(16, 12, 16, 8),
+                  child: Text(
+                    'Available Power Tools',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
-                ],
-              );
-            },
-            separatorBuilder: (context, index) => const SizedBox(height: 8),
+                ),
+                Expanded(
+                  child: ListView.separated(
+                    padding: const EdgeInsets.all(12.0),
+                    itemCount: assets.length,
+                    itemBuilder: (context, index) {
+                      final asset =
+                          assets[index].data() as Map<String, dynamic>;
+                      final condition = asset['condition'];
+                      final maintenanceDate =
+                          DateTime.tryParse(asset['next_maintenance'] ?? '');
+                      final conditionColor =
+                          Provider.of<AssetProvider>(context, listen: false)
+                              .getConditionColor(condition);
+
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Card(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8.0),
+                            ),
+                            elevation: 3,
+                            child: ListTile(
+                              leading: Container(
+                                padding: const EdgeInsets.all(8.0),
+                                decoration: BoxDecoration(
+                                  color: Colors.blueAccent.withOpacity(0.1),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: const Icon(Icons.build,
+                                    color: Colors.blueAccent),
+                              ),
+                              title: Text(
+                                asset['name'] ?? 'Unknown Tool',
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 14,
+                                ),
+                              ),
+                              subtitle: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    "Serial Number: ${asset['serial_number'] ?? 'N/A'}",
+                                    style: const TextStyle(
+                                      color: Colors.grey,
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  if (authProvider.userRole != 'Site Manager')
+                                    Text(
+                                      "Next Maintenance: ${_formatDate(maintenanceDate)}",
+                                      style: TextStyle(
+                                        color: conditionColor,
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                ],
+                              ),
+                              trailing: _getConditionIcon(condition),
+                              onTap: () {
+                                final assetId = assets[index].id;
+                                final asset = assets[index].data()
+                                    as Map<String, dynamic>;
+                                asset['id'] = assetId;
+                                Navigator.pushNamed(context, '/asset',
+                                    arguments: asset);
+                              },
+                            ),
+                          ),
+                        ],
+                      );
+                    },
+                    separatorBuilder: (context, index) =>
+                        const SizedBox(height: 8),
+                  ),
+                ),
+              ],
+            ),
           );
         },
       ),

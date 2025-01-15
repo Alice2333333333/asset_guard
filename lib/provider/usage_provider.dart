@@ -2,7 +2,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 class UsageProvider extends ChangeNotifier {
-
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   Stream<List<Map<String, dynamic>>> fetchMonitorData(String assetId) {
@@ -17,6 +16,27 @@ class UsageProvider extends ChangeNotifier {
                 'usage_hours': doc['usage_hours'],
               };
             }).toList());
+  }
+
+  Future<DateTime?> fetchStartDate(String assetId) {
+    return _firestore
+        .collection('asset')
+        .doc(assetId)
+        .collection('usage_data')
+        .orderBy(FieldPath
+            .documentId)
+        .limit(1)
+        .get()
+        .then((querySnapshot) {
+      if (querySnapshot.docs.isNotEmpty) {
+        final dateString = querySnapshot.docs.first.id;
+        return DateTime.tryParse(dateString);
+      }
+      return null;
+    }).catchError((e) {
+      debugPrint('Failed to fetch earliest date: $e');
+      return null;
+    });
   }
 
   double calculateTotalUsage(List<Map<String, dynamic>> data) {
